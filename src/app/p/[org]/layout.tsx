@@ -28,7 +28,12 @@ export default async function PortalLayout({ children, params }: Props) {
           <Link href={base} className="text-lg font-bold">
             {organization.name}
           </Link>
-          <PortalNav items={[{ label: "Feedback", href: base }]} />
+          <PortalNav
+            items={[
+              { label: "Feedback", href: base },
+              { label: "Roadmap", href: `${base}/roadmap` },
+            ]}
+          />
         </div>
       </header>
       <main className="flex-1 mx-auto w-full max-w-4xl px-4 sm:px-6 py-8">{children}</main>

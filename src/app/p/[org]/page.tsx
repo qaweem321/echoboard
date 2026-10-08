@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { Pager } from "@/components/pager";
 import { PostRow } from "@/components/portal/post-row";
-import { buttonClasses } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
 import { getPortal, listPortalPosts } from "@/lib/portal/queries";
@@ -134,28 +134,12 @@ export default async function PortalHomePage({ params, searchParams }: Props) {
         </ul>
       )}
 
-      {(current.page > 1 || hasMore) && (
-        <nav aria-label="Pages" className="flex justify-between">
-          {current.page > 1 ? (
-            <Link
-              href={portalHref(base, current, { page: current.page - 1 })}
-              className={buttonClasses({ variant: "outline" })}
-            >
-              Previous
-            </Link>
-          ) : (
-            <span />
-          )}
-          {hasMore && (
-            <Link
-              href={portalHref(base, current, { page: current.page + 1 })}
-              className={buttonClasses({ variant: "outline" })}
-            >
-              Next
-            </Link>
-          )}
-        </nav>
-      )}
+      <Pager
+        previousHref={
+          current.page > 1 ? portalHref(base, current, { page: current.page - 1 }) : null
+        }
+        nextHref={hasMore ? portalHref(base, current, { page: current.page + 1 }) : null}
+      />
     </div>
   );
 }

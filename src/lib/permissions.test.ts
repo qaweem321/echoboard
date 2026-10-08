@@ -11,6 +11,8 @@ test("owners can do everything", () => {
     "member:update-role",
     "billing:manage",
     "board:manage",
+    "feedback:manage",
+    "feedback:delete",
   ] as const) {
     assert.equal(can("owner", permission), true, permission);
   }
@@ -40,4 +42,10 @@ test("isRole only accepts real roles", () => {
 test("only owners and admins manage boards", () => {
   assert.equal(can("admin", "board:manage"), true);
   assert.equal(can("member", "board:manage"), false);
+});
+
+test("everyone triages feedback, only owners and admins delete it", () => {
+  assert.equal(can("member", "feedback:manage"), true);
+  assert.equal(can("member", "feedback:delete"), false);
+  assert.equal(can("admin", "feedback:delete"), true);
 });

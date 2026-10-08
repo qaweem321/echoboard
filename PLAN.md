@@ -11,7 +11,7 @@ into the dashboard; its users vote and comment on a public portal without creati
 | --- | --- | --- |
 | 1 | Foundation: project from StarterKit, rebrand, feedback data model, boards in the dashboard | Done |
 | 2 | Public portal: board pages, post ideas, zero-signup voting, comments, sort and search | Done |
-| 3 | Team tools: feedback inbox, statuses, edit/delete, merge duplicates, public roadmap | |
+| 3 | Team tools: feedback inbox, statuses, edit/delete, merge duplicates, public roadmap | Done |
 | 4 | Changelog, and "shipped" emails to everyone who voted (with unsubscribe) | |
 | 5 | Embeddable widget (one script tag) with zero-signup voting | |
 | 6 | White-label: logo and colors per workspace, custom domains, portal languages | |
@@ -27,5 +27,7 @@ into the dashboard; its users vote and comment on a public portal without creati
   signup-free and keeps team accounts (Better Auth) separate.
 - **Counts are stored** on posts (`vote_count`, `comment_count`) so board pages sort and render
   with one query instead of counting on every page view.
+- **Merging keeps the duplicate** (hidden, with `merged_into_id`) so old links redirect to the
+  main post; its voters are added to the main post once each and its comments move over.
 - **Statuses are fixed** (open, under review, planned, in progress, complete, closed) so the
   roadmap and emails can rely on them. Custom statuses can come later if buyers ask.

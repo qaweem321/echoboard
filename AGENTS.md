@@ -39,6 +39,12 @@ Read the docs that ship with the package before using a Next.js API:
   (`getPortal`, `listPortalPosts`, `getPortalPost`, `getTeamViewer`); portal actions get the
   voter with `getOrCreateVoter()` and check every ID against the workspace (`findPost`).
   Portal actions are public, so each one has a `rateLimit` by IP.
+- `src/app/dashboard/[slug]/feedback/`: the team's inbox and post page. Queries in
+  `src/lib/feedback/` (`inbox.ts`, `merge.ts`, `counts.ts` for the recount expressions,
+  `filters.ts` for search shared with the portal). After changing feedback, call
+  `refreshPortal(slug)` so the portal and roadmap update.
+- List pages keep their options in the URL: parse with `src/lib/url-params.ts` helpers
+  (see `portal-params.ts`, `inbox-params.ts`) and page with `<Pager>`.
 - `src/lib/session.ts`: `requireUser`, `requireMembership(slug)`, `requirePermission(slug, perm)`.
 - `src/lib/permissions.ts`: the only place roles and permissions are defined (`can(role, perm)`).
 - `src/lib/billing/`: provider interface (`types.ts`), Polar and Stripe, plans and statuses.

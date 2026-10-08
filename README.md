@@ -14,6 +14,9 @@ Stripe billing. See [PLAN.md](PLAN.md) for the build plan and progress.
   (owners and admins)
 - Public portal per workspace at `/p/<workspace>`: share ideas, vote and comment **without an
   account** (name and email optional), Top/New sorting, search, board filter, paging
+- Public roadmap (Planned, In progress, Complete) with voting on the cards
+- Team inbox: filter, search and sort all feedback; change status, board and wording; merge
+  duplicates (no double votes); delete posts and comments (owners and admins)
 - Statuses: open, under review, planned, in progress, complete, closed
 - Spam protection: rate limits per visitor for votes, ideas and comments
 

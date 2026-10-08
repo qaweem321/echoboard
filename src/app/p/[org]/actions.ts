@@ -1,22 +1,19 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { comments, posts, votes } from "@/db/schema";
 import { clientIp } from "@/lib/client-ip";
+import { recountComments, recountVotes } from "@/lib/feedback/counts";
 import { checkCommentInput, checkPostInput, checkVoterDetails } from "@/lib/feedback-input";
 import { getPortal, getTeamViewer } from "@/lib/portal/queries";
+import { refreshPortal } from "@/lib/portal/refresh";
 import { getOrCreateVoter } from "@/lib/portal/voter";
 import { rateLimit } from "@/lib/rate-limit";
 import { isUuid } from "@/lib/uuid";
-import { refreshPortal } from "./refresh";
-
-// Recounts from the source rows in the same transaction, so a count can never drift.
-const recountVotes = sql`(select count(*)::int from ${votes} where ${votes.postId} = ${posts.id})`;
-const recountComments = sql`(select count(*)::int from ${comments} where ${comments.postId} = ${posts.id})`;
 
 async function limitByIp(action: string, organizationId: string, max: number, seconds: number) {
   const ip = clientIp(await headers());
@@ -59,7 +56,7 @@ export async function setVote(formData: FormData) {
     change,
     db.update(posts).set({ voteCount: recountVotes }).where(eq(posts.id, postId)),
   ]);
-  refreshPortal(organizationSlug, postId);
+  refreshPortal(organizationSlug);
 }
 
 export type PostFormState = {
@@ -117,7 +114,7 @@ export async function createPost(
     }),
     db.insert(votes).values({ postId, voterId: voter.id }),
   ]);
-  refreshPortal(organizationSlug, postId);
+  refreshPortal(organizationSlug);
   redirect(`/p/${organizationSlug}/posts/${postId}`);
 }
 
@@ -156,7 +153,7 @@ export async function addComment(
     }),
     db.update(posts).set({ commentCount: recountComments }).where(eq(posts.id, postId)),
   ]);
-  refreshPortal(organizationSlug, postId);
+  refreshPortal(organizationSlug);
   // A new number each time, so the form knows to clear itself.
   return { sent: Date.now() };
 }

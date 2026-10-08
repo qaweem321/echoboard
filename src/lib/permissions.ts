@@ -10,6 +10,10 @@ const permissions = {
   "billing:manage": ["owner"],
   // Boards shape the public portal, so only owners and admins create, rename or delete them.
   "board:manage": ["owner", "admin"],
+  // Everyone on the team triages feedback: statuses, edits, merging duplicates.
+  "feedback:manage": ["owner", "admin", "member"],
+  // Deleting posts and comments removes customers' words for good, so owners and admins only.
+  "feedback:delete": ["owner", "admin"],
 } satisfies Record<string, Role[]>;
 
 export type Permission = keyof typeof permissions;

@@ -1,5 +1,5 @@
 import { getSessionCookie } from "better-auth/cookies";
-import { and, asc, desc, eq, ilike, inArray, isNull, or, type SQL, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, type SQL, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -15,7 +15,7 @@ import {
   votes,
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { escapeLike } from "@/lib/feedback-input";
+import { postSearchFilter } from "@/lib/feedback/filters";
 import { PORTAL_PAGE_SIZE, type PortalParams } from "@/lib/portal-params";
 import { listedStatuses } from "@/lib/post-status";
 import { isUuid } from "@/lib/uuid";
@@ -76,12 +76,9 @@ export async function listPortalPosts(
   if (boardId) {
     filters.push(eq(posts.boardId, boardId));
   }
-  if (params.q) {
-    const pattern = `%${escapeLike(params.q)}%`;
-    const match = or(ilike(posts.title, pattern), ilike(posts.body, pattern));
-    if (match) {
-      filters.push(match);
-    }
+  const search = postSearchFilter(params.q);
+  if (search) {
+    filters.push(search);
   }
 
   const rows = await db
@@ -111,6 +108,34 @@ export async function listPortalPosts(
 }
 
 export type PortalPost = Awaited<ReturnType<typeof listPortalPosts>>["posts"][number];
+
+export const roadmapStatuses = ["planned", "in_progress", "complete"] as const;
+const ROADMAP_LIMIT = 300;
+
+// Posts on the public roadmap, most-voted first, with the visitor's votes. One query;
+// the page splits them into columns.
+export async function listRoadmapPosts(organizationId: string, voterHash: string | null) {
+  return db
+    .select({
+      id: posts.id,
+      title: posts.title,
+      status: posts.status,
+      voteCount: posts.voteCount,
+      boardName: boards.name,
+      voted: votedBy(voterHash),
+    })
+    .from(posts)
+    .innerJoin(boards, eq(boards.id, posts.boardId))
+    .where(
+      and(
+        eq(posts.organizationId, organizationId),
+        isNull(posts.mergedIntoId),
+        inArray(posts.status, [...roadmapStatuses]),
+      ),
+    )
+    .orderBy(desc(posts.voteCount), desc(posts.updatedAt))
+    .limit(ROADMAP_LIMIT);
+}
 
 // One post with its comments. The two queries run in parallel.
 export async function getPortalPost(
