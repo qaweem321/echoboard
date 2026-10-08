@@ -5,6 +5,8 @@ import { db } from "./index";
 import {
   accounts,
   boards,
+  changelogEntries,
+  changelogEntryPosts,
   memberships,
   organizations,
   posts,
@@ -104,6 +106,8 @@ async function seedFeedback(organizationId: string) {
   // Anonymous portal visitors; their cookie tokens are random and never used again.
   const voterIds = Array.from({ length: 5 }, () => randomUUID());
   const postIds = demoPosts.map(() => randomUUID());
+  const entryId = randomUUID();
+  const shippedPostIndex = demoPosts.findIndex((post) => post.status === "complete");
 
   await db.batch([
     db.insert(boards).values([
@@ -140,6 +144,14 @@ async function seedFeedback(organizationId: string) {
           voterIds.slice(0, post.votes).map((voterId) => ({ postId: postIds[i], voterId })),
         ),
       ),
+    db.insert(changelogEntries).values({
+      id: entryId,
+      organizationId,
+      title: "Two-factor login is here",
+      body: "You can now protect your account with an authenticator app. Turn it on under Account > Security.",
+      publishedAt: new Date(),
+    }),
+    db.insert(changelogEntryPosts).values({ entryId, postId: postIds[shippedPostIndex] }),
   ]);
 }
 

@@ -20,8 +20,9 @@ export default function PrivacyPage() {
         <li>Organization details: names, members, roles and pending invitations.</li>
         <li>
           Feedback you share on a public portal: your ideas, votes and comments, and the name and
-          email address you choose to add (both optional). The email is only used to tell you about
-          updates to feedback you took part in.
+          email address you choose to add (both optional). The email is only used to tell you when
+          ideas you voted for change status (for example when they ship). Every such email has an
+          unsubscribe link.
         </li>
         <li>
           Session details: your IP address and browser type, to keep you logged in and protect your

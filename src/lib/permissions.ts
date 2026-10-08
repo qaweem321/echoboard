@@ -14,6 +14,8 @@ const permissions = {
   "feedback:manage": ["owner", "admin", "member"],
   // Deleting posts and comments removes customers' words for good, so owners and admins only.
   "feedback:delete": ["owner", "admin"],
+  // The changelog is public and can email voters, so owners and admins only.
+  "changelog:manage": ["owner", "admin"],
 } satisfies Record<string, Role[]>;
 
 export type Permission = keyof typeof permissions;

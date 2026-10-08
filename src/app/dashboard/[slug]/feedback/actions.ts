@@ -8,6 +8,7 @@ import { boards, comments, posts } from "@/db/schema";
 import { recountComments } from "@/lib/feedback/counts";
 import { mergePosts } from "@/lib/feedback/merge";
 import { checkPostInput } from "@/lib/feedback-input";
+import { emailVoters, notifiableStatuses } from "@/lib/notifications/voter-updates";
 import type { Permission } from "@/lib/permissions";
 import { refreshPortal } from "@/lib/portal/refresh";
 import { isPostStatus } from "@/lib/post-status";
@@ -31,7 +32,7 @@ async function requirePost(formData: FormData, permission: Permission) {
     throw new Error("Invalid post.");
   }
   const [post] = await db
-    .select({ id: posts.id, mergedIntoId: posts.mergedIntoId })
+    .select({ id: posts.id, status: posts.status, mergedIntoId: posts.mergedIntoId })
     .from(posts)
     .where(and(eq(posts.id, postId), eq(posts.organizationId, organization.id)))
     .limit(1);
@@ -41,7 +42,16 @@ async function requirePost(formData: FormData, permission: Permission) {
   return { slug, organization, post };
 }
 
-export type PostEditState = { error?: string; saved?: boolean };
+export type PostEditState = { error?: string; saved?: boolean; notice?: string };
+
+function emailNotice(result: { sent: number } | { error: string }) {
+  if ("error" in result) {
+    return result.error;
+  }
+  return result.sent === 0
+    ? "No voters left an email, so nobody was notified."
+    : `Emailing ${result.sent} ${result.sent === 1 ? "voter" : "voters"}.`;
+}
 
 export async function updatePost(
   _previous: PostEditState,
@@ -73,7 +83,17 @@ export async function updatePost(
     .set({ title: input.title, body: input.body, status, boardId, updatedAt: new Date() })
     .where(eq(posts.id, post.id));
   refresh(slug, post.id);
-  return { saved: true };
+
+  // Only a real status change is news, and only when the team ticked "Email voters".
+  const notify =
+    formData.get("notify") === "on" &&
+    status !== post.status &&
+    notifiableStatuses.includes(status);
+  if (!notify) {
+    return { saved: true };
+  }
+  const result = await emailVoters({ organization, postIds: [post.id], status });
+  return { saved: true, notice: emailNotice(result) };
 }
 
 export type MergeState = { error?: string };

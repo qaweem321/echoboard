@@ -19,6 +19,7 @@ function NavContent({ slug, organizations, onNavigate }: NavProps) {
   const navItems = [
     { label: "Overview", href: base },
     { label: "Feedback", href: `${base}/feedback` },
+    { label: "Changelog", href: `${base}/changelog` },
     { label: "Boards", href: `${base}/boards` },
     { label: "Members", href: `${base}/members` },
     { label: "Billing", href: `${base}/billing` },

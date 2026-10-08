@@ -1,37 +1,81 @@
 import { siteConfig } from "@/config/site";
 import { isDemoMode } from "@/lib/demo";
 
-type Email = {
+export type Email = {
   to: string;
   subject: string;
   text: string;
   html?: string;
+  // Extra headers, e.g. List-Unsubscribe on update emails.
+  headers?: Record<string, string>;
 };
 
-export async function sendEmail({ to, subject, text, html }: Email) {
-  const apiKey = process.env.RESEND_API_KEY;
+// Resend accepts up to 100 emails per batch call and about 2 calls per second.
+const BATCH_SIZE = 100;
+const PAUSE_BETWEEN_BATCHES_MS = 600;
 
-  if (!apiKey || isDemoMode()) {
-    console.log(
-      `\n--- Email (${apiKey ? "demo" : "dev"} mode, not sent) ---\nTo: ${to}\nSubject: ${subject}\n\n${text}\n---------------------------------\n`,
-    );
-    return;
-  }
+function canSend() {
+  return Boolean(process.env.RESEND_API_KEY) && !isDemoMode();
+}
 
-  const response = await fetch("https://api.resend.com/emails", {
+// Without Resend (development) or in demo mode, emails are printed instead of sent.
+function printEmail({ to, subject, text }: Email) {
+  console.log(
+    `
+--- Email (${process.env.RESEND_API_KEY ? "demo" : "dev"} mode, not sent) ---
+To: ${to}
+Subject: ${subject}
+
+${text}
+---------------------------------
+`,
+  );
+}
+
+function toResend({ to, subject, text, html, headers }: Email) {
+  return {
+    from: process.env.EMAIL_FROM || `${siteConfig.name} <onboarding@resend.dev>`,
+    to,
+    subject,
+    text,
+    html,
+    headers,
+  };
+}
+
+async function postToResend(path: string, body: unknown) {
+  const response = await fetch(`https://api.resend.com${path}`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: process.env.EMAIL_FROM || `${siteConfig.name} <onboarding@resend.dev>`,
-      to,
-      subject,
-      text,
-      html,
-    }),
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
   });
-
   if (!response.ok) {
     throw new Error(`Sending email failed: ${response.status} ${await response.text()}`);
+  }
+}
+
+export async function sendEmail(email: Email) {
+  if (!canSend()) {
+    printEmail(email);
+    return;
+  }
+  await postToResend("/emails", toResend(email));
+}
+
+// Sends many emails with as few API calls as possible (100 per call).
+export async function sendEmails(emails: Email[]) {
+  if (!canSend()) {
+    emails.forEach(printEmail);
+    return;
+  }
+  for (let start = 0; start < emails.length; start += BATCH_SIZE) {
+    if (start > 0) {
+      await new Promise((resolve) => setTimeout(resolve, PAUSE_BETWEEN_BATCHES_MS));
+    }
+    await postToResend("/emails/batch", emails.slice(start, start + BATCH_SIZE).map(toResend));
   }
 }
 

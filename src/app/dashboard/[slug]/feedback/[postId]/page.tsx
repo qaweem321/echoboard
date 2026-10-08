@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/portal/status-badge";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { getInboxPost } from "@/lib/feedback/inbox";
 import { formatDate } from "@/lib/format";
+import { countReachableVoters } from "@/lib/notifications/voter-updates";
 import { can } from "@/lib/permissions";
 import { getPortal } from "@/lib/portal/queries";
 import { requireMembership } from "@/lib/session";
@@ -32,7 +33,10 @@ export default async function FeedbackPostPage({ params }: Props) {
     requireMembership(slug),
     getPortal(slug),
   ]);
-  const { post, comments, namedVoters, mergeTargets } = await getInboxPost(organization.id, postId);
+  const [{ post, comments, namedVoters, mergeTargets }, reachableVoters] = await Promise.all([
+    getInboxPost(organization.id, postId),
+    countReachableVoters(organization.id, postId),
+  ]);
   const base = `/dashboard/${slug}/feedback`;
 
   // A merged duplicate has nothing left to manage: show the main post.
@@ -69,7 +73,7 @@ export default async function FeedbackPostPage({ params }: Props) {
       </div>
 
       <Section title="Status and details">
-        <EditPostForm slug={slug} post={post} boards={boards} />
+        <EditPostForm slug={slug} post={post} boards={boards} reachableVoters={reachableVoters} />
       </Section>
 
       <Section title={`Comments (${comments.length})`}>

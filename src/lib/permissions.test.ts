@@ -13,6 +13,7 @@ test("owners can do everything", () => {
     "board:manage",
     "feedback:manage",
     "feedback:delete",
+    "changelog:manage",
   ] as const) {
     assert.equal(can("owner", permission), true, permission);
   }
@@ -48,4 +49,9 @@ test("everyone triages feedback, only owners and admins delete it", () => {
   assert.equal(can("member", "feedback:manage"), true);
   assert.equal(can("member", "feedback:delete"), false);
   assert.equal(can("admin", "feedback:delete"), true);
+});
+
+test("only owners and admins manage the changelog", () => {
+  assert.equal(can("admin", "changelog:manage"), true);
+  assert.equal(can("member", "changelog:manage"), false);
 });

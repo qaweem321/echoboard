@@ -37,6 +37,20 @@ Notable changes for buyers of Echoboard. The format follows
 - `/p/<workspace>/roadmap`: Planned, In progress and Complete columns, most-voted first, with
   voting right on the cards.
 
+### Changelog and voter emails
+- Changelog in the dashboard: drafts, publish, unpublish, delete, and link the ideas an entry
+  ships. Public changelog at `/p/<workspace>/changelog`, with a page per entry.
+- Publishing can mark the linked ideas Complete and email everyone who voted for them, with a
+  link to the announcement. Ideas already Complete are skipped, so nobody gets the news twice.
+- Changing a post's status (Under review, Planned, In progress, Complete) can email its voters;
+  the post page shows how many people that reaches.
+- One email per person even when several of their ideas changed; voters from several browsers
+  with the same email get one email.
+- Every update email has an unsubscribe link (with a confirm click, so email scanners can't
+  unsubscribe people) and a one-click unsubscribe header for mail apps.
+- Emails go out in batches of 100 after the page responds, and each workspace can send at most
+  30 updates per hour.
+
 ### Foundation
 - Built on StarterKit 1.0.0: accounts, organizations with roles and invitations, Polar or Stripe
   billing, emails, security headers, rate limits and environment checks.

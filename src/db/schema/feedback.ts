@@ -6,6 +6,7 @@ import {
   integer,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   unique,
@@ -47,6 +48,9 @@ export const voters = pgTable(
     name: text("name"),
     // Stored in lowercase.
     email: text("email"),
+    // Set when they click "unsubscribe" in an update email. Applies to every voter row with
+    // the same email in the workspace.
+    unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("voters_organization_email_idx").on(table.organizationId, table.email)],
@@ -117,4 +121,40 @@ export const comments = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("comments_post_idx").on(table.postId, table.createdAt)],
+);
+
+// A changelog announcement. Drafts have no publishedAt and are only visible to the team.
+export const changelogEntries = pgTable(
+  "changelog_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    body: text("body").notNull().default(""),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("changelog_organization_published_idx").on(table.organizationId, table.publishedAt),
+  ],
+);
+
+// The ideas a changelog entry announces as shipped.
+export const changelogEntryPosts = pgTable(
+  "changelog_entry_posts",
+  {
+    entryId: uuid("entry_id")
+      .notNull()
+      .references(() => changelogEntries.id, { onDelete: "cascade" }),
+    postId: uuid("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    primaryKey({ columns: [table.entryId, table.postId] }),
+    index("changelog_entry_posts_post_idx").on(table.postId),
+  ],
 );

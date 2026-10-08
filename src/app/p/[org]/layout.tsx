@@ -32,6 +32,7 @@ export default async function PortalLayout({ children, params }: Props) {
             items={[
               { label: "Feedback", href: base },
               { label: "Roadmap", href: `${base}/roadmap` },
+              { label: "Changelog", href: `${base}/changelog` },
             ]}
           />
         </div>

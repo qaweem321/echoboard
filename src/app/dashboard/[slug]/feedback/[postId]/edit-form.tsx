@@ -9,12 +9,14 @@ import { type PostEditState, updatePost } from "../actions";
 
 type Props = {
   slug: string;
+  // How many voters left an email and would get a status update.
+  reachableVoters: number;
   post: { id: string; title: string; body: string | null; status: PostStatus; boardId: string };
   boards: { id: string; name: string }[];
 };
 
 // Status, board, title and details in one form, so a triage is one save.
-export function EditPostForm({ slug, post, boards }: Props) {
+export function EditPostForm({ slug, post, boards, reachableVoters }: Props) {
   const [state, formAction] = useActionState(updatePost, {} as PostEditState);
 
   return (
@@ -72,8 +74,18 @@ export function EditPostForm({ slug, post, boards }: Props) {
           className="min-h-32"
         />
       </div>
+      <label className="flex items-start gap-2 text-sm">
+        <input type="checkbox" name="notify" defaultChecked className="mt-1" />
+        <span>
+          Email voters when the status changes ({reachableVoters}{" "}
+          {reachableVoters === 1 ? "person" : "people"} left an email). Sent for Under review,
+          Planned, In progress and Complete.
+        </span>
+      </label>
       {state.error && <p className="text-sm text-danger">{state.error}</p>}
-      {state.saved && <p className="text-sm text-success">Saved.</p>}
+      {state.saved && (
+        <p className="text-sm text-success">Saved.{state.notice && ` ${state.notice}`}</p>
+      )}
       <SubmitButton pendingText="Saving...">Save changes</SubmitButton>
     </form>
   );

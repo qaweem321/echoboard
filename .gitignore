@@ -23,5 +23,6 @@ next-env.d.ts
 .DS_Store
 Thumbs.db
 
-# Release zips and sales notes (not part of the product)
+# Seller-only files: release zips, sales notes and the internal build plan (not for buyers)
 releases/
+PLAN.md

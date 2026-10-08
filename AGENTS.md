@@ -8,7 +8,7 @@ Humans: start with README.md.
 Echoboard: a white-label feedback, roadmap and changelog app that buyers rebrand and run as
 their own SaaS. Next.js 16 App Router, React 19, TypeScript (strict), Tailwind 4, Drizzle ORM on
 Postgres (Neon), Better Auth, Polar or Stripe billing, Resend emails, Biome. Built on the
-StarterKit foundation. `PLAN.md` lists the build phases and key decisions.
+StarterKit foundation.
 
 Two kinds of people use it:
 - **Team members** (Better Auth users with a membership) manage a workspace in `/dashboard`.
@@ -43,6 +43,12 @@ Read the docs that ship with the package before using a Next.js API:
   `src/lib/feedback/` (`inbox.ts`, `merge.ts`, `counts.ts` for the recount expressions,
   `filters.ts` for search shared with the portal). After changing feedback, call
   `refreshPortal(slug)` so the portal and roadmap update.
+- `src/lib/notifications/`: voter emails. `emailVoters()` finds recipients, then sends after
+  the response (`after()`), rate limited per workspace. Templates are plain functions with tests.
+- `src/lib/changelog/`: changelog input checks and queries. Dashboard in
+  `src/app/dashboard/[slug]/changelog/`, portal in `src/app/p/[org]/changelog/`.
+- Raw SQL subqueries that point at the outer table must use `qualified(column)` from
+  `src/db/qualified.ts`: Drizzle drops table names in single-table queries.
 - List pages keep their options in the URL: parse with `src/lib/url-params.ts` helpers
   (see `portal-params.ts`, `inbox-params.ts`) and page with `<Pager>`.
 - `src/lib/session.ts`: `requireUser`, `requireMembership(slug)`, `requirePermission(slug, perm)`.
@@ -68,6 +74,7 @@ Read the docs that ship with the package before using a Next.js API:
 - Validate and trim all input on the server. Compare emails in lowercase and check them with
   `isValidEmail()` (`src/lib/email-address.ts`). Avoid regexes that can backtrack heavily.
 - Redirects to user-supplied paths go through `safeNextPath()`.
+- Emails to many people use `sendEmails()` (batches of 100) and include an unsubscribe link.
 - Anything that sends email or can be repeated cheaply gets a limit: `rateLimit(key, max,
   windowSeconds)` from `src/lib/rate-limit.ts`.
 - New environment variables: add them to `.env.example` and to `checkEnv()` in `src/lib/env.ts`.

@@ -5,7 +5,7 @@ tell every voter when their idea ships. Rebrand it and run it as your own feedba
 customer company gets its own workspace.
 
 Built on Next.js 16, React 19, TypeScript, Postgres (Drizzle ORM), Better Auth and Polar or
-Stripe billing. See [PLAN.md](PLAN.md) for the build plan and progress.
+Stripe billing.
 
 ## What's inside
 
@@ -18,6 +18,9 @@ Stripe billing. See [PLAN.md](PLAN.md) for the build plan and progress.
 - Team inbox: filter, search and sort all feedback; change status, board and wording; merge
   duplicates (no double votes); delete posts and comments (owners and admins)
 - Statuses: open, under review, planned, in progress, complete, closed
+- Changelog (drafts, publish, link shipped ideas) with a public page per entry
+- **"It shipped" emails:** status changes and published changelog entries email everyone who
+  voted and left an email, one email per person, with unsubscribe links
 - Spam protection: rate limits per visitor for votes, ideas and comments
 
 **Accounts**

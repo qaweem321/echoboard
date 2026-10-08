@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { db } from "@/db";
+import { qualified } from "@/db/qualified";
 import {
   boards,
   comments,
@@ -56,7 +57,7 @@ function votedBy(voterHash: string | null) {
   }
   return sql<boolean>`exists (
     select 1 from ${votes} inner join ${voters} on ${voters.id} = ${votes.voterId}
-    where ${votes.postId} = ${posts.id} and ${voters.tokenHash} = ${voterHash}
+    where ${votes.postId} = ${qualified(posts.id)} and ${voters.tokenHash} = ${voterHash}
   )`;
 }
 
