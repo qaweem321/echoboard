@@ -12,8 +12,10 @@ Stripe billing. See [PLAN.md](PLAN.md) for the build plan and progress.
 **Feedback**
 - Boards per workspace (e.g. "Feature requests", "Bugs"): add, rename and delete
   (owners and admins)
-- Posts with statuses (open, under review, planned, in progress, complete, closed), votes and
-  comments in the database; the public portal arrives in the next version
+- Public portal per workspace at `/p/<workspace>`: share ideas, vote and comment **without an
+  account** (name and email optional), Top/New sorting, search, board filter, paging
+- Statuses: open, under review, planned, in progress, complete, closed
+- Spam protection: rate limits per visitor for votes, ideas and comments
 
 **Accounts**
 - Email and password sign-up with email verification, log in, forgot/reset password

@@ -21,3 +21,14 @@ export function Select({ className, ...props }: ComponentProps<"select">) {
     />
   );
 }
+
+export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
+  const ariaLabel = props["aria-label"] ?? (props.id ? undefined : props.placeholder);
+  return (
+    <textarea
+      className={cn(inputClasses, "min-h-24", className)}
+      aria-label={ariaLabel}
+      {...props}
+    />
+  );
+}

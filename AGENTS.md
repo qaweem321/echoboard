@@ -35,6 +35,10 @@ Read the docs that ship with the package before using a Next.js API:
 - `src/db/schema/`: tables, one file per area (`auth`, `organizations`, `billing`, `feedback`).
   `posts.vote_count` and `comment_count` are stored counts: update them in the same
   `db.batch` as the vote or comment they count.
+- `src/app/p/[org]/`: the public portal (no login). Data loading lives in `src/lib/portal/`
+  (`getPortal`, `listPortalPosts`, `getPortalPost`, `getTeamViewer`); portal actions get the
+  voter with `getOrCreateVoter()` and check every ID against the workspace (`findPost`).
+  Portal actions are public, so each one has a `rateLimit` by IP.
 - `src/lib/session.ts`: `requireUser`, `requireMembership(slug)`, `requirePermission(slug, perm)`.
 - `src/lib/permissions.ts`: the only place roles and permissions are defined (`can(role, perm)`).
 - `src/lib/billing/`: provider interface (`types.ts`), Polar and Stripe, plans and statuses.

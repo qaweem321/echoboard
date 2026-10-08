@@ -62,13 +62,20 @@ export default async function BoardsPage({ params }: { params: Promise<{ slug: s
             <li key={board.id} className="p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="font-medium">{board.name}</p>
+                  <a
+                    href={`/p/${slug}?board=${board.slug}`}
+                    target="_blank"
+                    rel="noopener"
+                    className="font-medium hover:underline"
+                  >
+                    {board.name}
+                  </a>
                   {board.description && (
                     <p className="mt-1 text-sm text-muted-foreground">{board.description}</p>
                   )}
                   <p className="mt-1 text-xs text-subtle-foreground">
-                    {board.postCount} {board.postCount === 1 ? "post" : "posts"} · /{board.slug} ·
-                    Created {formatDate(board.createdAt)}
+                    {board.postCount} {board.postCount === 1 ? "post" : "posts"} · Created{" "}
+                    {formatDate(board.createdAt)}
                   </p>
                 </div>
                 {canManage && (

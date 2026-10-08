@@ -50,6 +50,15 @@ function NavContent({ slug, organizations, onNavigate }: NavProps) {
         })}
       </nav>
 
+      <a
+        href={`/p/${slug}`}
+        target="_blank"
+        rel="noopener"
+        className="mt-4 px-2 py-2 text-sm text-link hover:underline"
+      >
+        Open public portal ↗
+      </a>
+
       <div className="mt-auto pt-6">
         <p className="px-2 mb-2 text-xs font-semibold uppercase text-subtle-foreground">
           Your organizations

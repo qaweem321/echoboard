@@ -11,6 +11,8 @@ import {
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
+// Relative path: drizzle-kit reads this file without the "@/" alias.
+import { postStatuses } from "../../lib/post-status";
 import { users } from "./auth";
 import { organizations } from "./organizations";
 
@@ -50,14 +52,6 @@ export const voters = pgTable(
   (table) => [index("voters_organization_email_idx").on(table.organizationId, table.email)],
 );
 
-export const postStatuses = [
-  "open",
-  "under_review",
-  "planned",
-  "in_progress",
-  "complete",
-  "closed",
-] as const;
 export const postStatusEnum = pgEnum("post_status", postStatuses);
 
 export const posts = pgTable(

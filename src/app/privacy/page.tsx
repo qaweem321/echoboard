@@ -6,10 +6,10 @@ export const metadata: Metadata = { title: "Privacy Policy" };
 
 const { name, companyName, supportEmail } = siteConfig;
 
-// Describes what this starter kit actually stores. Update it when you add features.
+// Describes what Echoboard actually stores. Update it when you add features.
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" lastUpdated="October 5, 2026">
+    <LegalPage title="Privacy Policy" lastUpdated="October 8, 2026">
       <p>
         This policy explains what personal data {companyName} collects when you use {name}, and why.
       </p>
@@ -18,6 +18,11 @@ export default function PrivacyPage() {
       <ul>
         <li>Account details: your name, email address and a securely hashed password.</li>
         <li>Organization details: names, members, roles and pending invitations.</li>
+        <li>
+          Feedback you share on a public portal: your ideas, votes and comments, and the name and
+          email address you choose to add (both optional). The email is only used to tell you about
+          updates to feedback you took part in.
+        </li>
         <li>
           Session details: your IP address and browser type, to keep you logged in and protect your
           account.
@@ -37,8 +42,10 @@ export default function PrivacyPage() {
 
       <h2>Cookies</h2>
       <p>
-        We use one essential cookie to keep you logged in. Your light or dark theme choice is saved
-        in your browser. We don&apos;t use tracking or advertising cookies.
+        We use one essential cookie to keep you logged in, and on public portals one essential
+        cookie that remembers your votes without an account (it holds a random code, not your
+        identity). Your light or dark theme choice is saved in your browser. We don&apos;t use
+        tracking or advertising cookies.
       </p>
 
       <h2>Who we share it with</h2>

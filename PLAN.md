@@ -10,7 +10,7 @@ into the dashboard; its users vote and comment on a public portal without creati
 | Phase | What gets built | Status |
 | --- | --- | --- |
 | 1 | Foundation: project from StarterKit, rebrand, feedback data model, boards in the dashboard | Done |
-| 2 | Public portal: board pages, post ideas, zero-signup voting, comments, sort and search | |
+| 2 | Public portal: board pages, post ideas, zero-signup voting, comments, sort and search | Done |
 | 3 | Team tools: feedback inbox, statuses, edit/delete, merge duplicates, public roadmap | |
 | 4 | Changelog, and "shipped" emails to everyone who voted (with unsubscribe) | |
 | 5 | Embeddable widget (one script tag) with zero-signup voting | |
