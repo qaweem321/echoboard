@@ -1,0 +1,27 @@
+# Dependencies and build output
+node_modules
+.next
+out
+build
+coverage
+*.tsbuildinfo
+next-env.d.ts
+
+# Secrets: only the example file is committed
+.env*
+!.env.example
+
+# Local tools and editors
+.claude
+.mcp.json
+.vercel
+.vscode
+.idea
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db
+
+# Release zips and sales notes (not part of the product)
+releases/

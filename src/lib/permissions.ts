@@ -1,0 +1,23 @@
+export const roles = ["owner", "admin", "member"] as const;
+export type Role = (typeof roles)[number];
+
+const permissions = {
+  "organization:update": ["owner", "admin"],
+  "organization:delete": ["owner"],
+  "member:remove": ["owner", "admin"],
+  "member:invite": ["owner", "admin"],
+  "member:update-role": ["owner"],
+  "billing:manage": ["owner"],
+  // Boards shape the public portal, so only owners and admins create, rename or delete them.
+  "board:manage": ["owner", "admin"],
+} satisfies Record<string, Role[]>;
+
+export type Permission = keyof typeof permissions;
+
+export function can(role: Role, permission: Permission) {
+  return (permissions[permission] as Role[]).includes(role);
+}
+
+export function isRole(value: string): value is Role {
+  return (roles as readonly string[]).includes(value);
+}
