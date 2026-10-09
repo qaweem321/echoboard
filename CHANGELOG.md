@@ -6,6 +6,12 @@ Notable changes for buyers of Echoboard. The format follows
 
 ## [Unreleased]
 
+### Changed
+- New workspaces start with a "Feature requests" board, and the Overview shows a Get started guide until the first feedback arrives.
+- The app says "workspace" everywhere (it said "organization" in a few places).
+- Free plan allows 2 boards; the sample workspace fits the Free plan.
+- The widget panel is kept out of search engines.
+
 ## [1.0.0] - 2026-10-09
 
 First public version.
@@ -76,7 +82,7 @@ First public version.
 - "Powered by" links to your own site.
 
 ### Plans, webhooks and similar ideas
-- Plan limits in one file (`src/lib/billing/plans.ts`), checked on the server: Free has 1 board
+- Plan limits in one file (`src/lib/billing/plans.ts`), checked on the server: Free has 2 boards
   and 3 team members; Pro adds unlimited boards and members, a custom domain, hiding "Powered
   by", and webhooks. Pricing cards list the limits. After a downgrade, the custom domain and
   hidden branding switch off on their own.

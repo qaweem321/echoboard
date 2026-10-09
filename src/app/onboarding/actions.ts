@@ -5,7 +5,8 @@ import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { atomic } from "@/db/atomic";
-import { memberships, organizations } from "@/db/schema";
+import { boards, memberships, organizations } from "@/db/schema";
+import { starterBoard } from "@/lib/board";
 import { checkOrganizationName } from "@/lib/organization-name";
 import { requireUser } from "@/lib/session";
 import { slugify } from "@/lib/slug";
@@ -31,9 +32,11 @@ export async function createOrganization(
   }
 
   const organizationId = randomUUID();
+  // Every workspace starts with one board, so its portal and widget work right away.
   await atomic((tx) => [
     tx.insert(organizations).values({ id: organizationId, name, slug }),
     tx.insert(memberships).values({ organizationId, userId: user.id, role: "owner" }),
+    tx.insert(boards).values({ organizationId, ...starterBoard }),
   ]);
 
   redirect(`/dashboard/${slug}`);

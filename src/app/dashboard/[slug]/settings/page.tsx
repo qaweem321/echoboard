@@ -15,7 +15,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ slug:
     <div className="max-w-lg">
       <h1 className="text-2xl font-bold">Settings</h1>
       <p className="mt-1 text-muted-foreground">
-        Manage your organization. Personal settings are under Account.
+        Manage your workspace. Personal settings are under Account.
       </p>
 
       <RenameForm slug={slug} name={organization.name} canEdit={canEdit} />

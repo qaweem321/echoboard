@@ -18,13 +18,13 @@ export default function TermsPage() {
       <h2>Your account</h2>
       <p>
         You must give accurate information and keep your password safe. You are responsible for
-        everything that happens in your account and in the organizations you own.
+        everything that happens in your account and in the workspaces you own.
       </p>
 
-      <h2>Organizations</h2>
+      <h2>Workspaces</h2>
       <p>
-        The owner of an organization controls who can access it and what role they have. Owners can
-        remove members and delete the organization along with its data.
+        The owner of a workspace controls who can access it and what role they have. Owners can
+        remove members and delete the workspace along with its data.
       </p>
 
       <h2>Payments</h2>
@@ -37,7 +37,7 @@ export default function TermsPage() {
       <h2>Acceptable use</h2>
       <ul>
         <li>Don&apos;t break the law or anyone else&apos;s rights using the service.</li>
-        <li>Don&apos;t try to access other organizations&apos; data or disrupt the service.</li>
+        <li>Don&apos;t try to access other workspaces&apos; data or disrupt the service.</li>
         <li>Don&apos;t send spam through invitations or other features.</li>
       </ul>
       <p>We may suspend accounts that break these rules.</p>

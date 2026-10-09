@@ -37,3 +37,10 @@ export function uniqueSlug(base: string, taken: readonly string[]) {
   }
   return `${base}-${n}`;
 }
+
+// The board every new workspace starts with (it can be renamed or deleted later).
+export const starterBoard = {
+  name: "Feature requests",
+  slug: "feature-requests",
+  description: "Ideas to make the product better. Vote for the ones you want most.",
+};

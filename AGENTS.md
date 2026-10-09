@@ -30,6 +30,8 @@ Read the docs that ship with the package before using a Next.js API:
 
 ## Where things live
 
+- Naming: the code says **organization** (tables, functions); the UI always says
+  **workspace**. Keep it that way in any text people see.
 - `src/app/dashboard/[slug]/`: everything inside an organization. `src/app/dashboard/page.tsx`
   picks which organization to open.
 - `src/db/index.ts`: picks the driver (`src/db/driver.ts`): Neon HTTP or postgres.js. Write

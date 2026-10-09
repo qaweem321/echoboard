@@ -7,7 +7,7 @@ export const plans = {
     price: "$0",
     description: "For small teams starting to collect feedback.",
     memberLimit: 3,
-    boardLimit: 1,
+    boardLimit: 2,
     // Custom domain, hiding "Powered by", and webhooks are Pro features.
     customDomain: false,
     removeBranding: false,

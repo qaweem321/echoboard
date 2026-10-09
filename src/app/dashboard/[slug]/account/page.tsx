@@ -18,7 +18,7 @@ export default async function AccountPage({ params }: { params: Promise<{ slug: 
     <div className="max-w-lg">
       <h1 className="text-2xl font-bold">Account</h1>
       <p className="mt-1 text-muted-foreground">
-        Your personal settings. These apply in every organization.
+        Your personal settings. These apply in every workspace.
       </p>
 
       <Section title="Profile" description={`Signed in as ${user.email}.`}>
@@ -44,7 +44,7 @@ export default async function AccountPage({ params }: { params: Promise<{ slug: 
 
       <Section
         title="Delete account"
-        description="Permanently deletes your account and removes you from every organization."
+        description="Permanently deletes your account and removes you from every workspace."
       >
         {deletion.blockers.length > 0 ? (
           <ul className="space-y-1 text-sm text-muted-foreground">

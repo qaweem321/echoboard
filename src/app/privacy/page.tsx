@@ -17,7 +17,7 @@ export default function PrivacyPage() {
       <h2>What we collect</h2>
       <ul>
         <li>Account details: your name, email address and a securely hashed password.</li>
-        <li>Organization details: names, members, roles and pending invitations.</li>
+        <li>Workspace details: names, members, roles and pending invitations.</li>
         <li>
           Feedback you share on a public portal: your ideas, votes and comments, and the name and
           email address you choose to add (both optional). The email is only used to tell you when

@@ -184,7 +184,7 @@ network addresses are refused.
 
 ## Billing (your customers pay you)
 
-Plans, limits and the prices shown live in `src/lib/billing/plans.ts`. Free: 1 board, 3 team
+Plans, limits and the prices shown live in `src/lib/billing/plans.ts`. Free: 2 boards, 3 team
 members. Pro: unlimited, plus custom domain, no "Powered by", webhooks. Change them freely; the
 server enforces whatever is there. If a workspace leaves Pro, its custom domain and hidden
 branding switch off by themselves.

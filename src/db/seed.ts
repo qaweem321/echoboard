@@ -27,7 +27,6 @@ const demoMembers = [
   { name: "Olivia Owner", email: demoLogin.email, role: "owner" },
   { name: "Adam Admin", email: "admin@acme.test", role: "admin" },
   { name: "Maya Member", email: "maya@acme.test", role: "member" },
-  { name: "Sam Member", email: "sam@acme.test", role: "member" },
 ] as const;
 
 async function seed() {

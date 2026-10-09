@@ -20,7 +20,7 @@ export function CreateOrganizationForm() {
       />
       {state.error && <p className="text-sm text-danger">{state.error}</p>}
       <SubmitButton size="full" pendingText="Creating...">
-        Create organization
+        Create workspace
       </SubmitButton>
     </form>
   );

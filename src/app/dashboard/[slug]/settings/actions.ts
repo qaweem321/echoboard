@@ -48,7 +48,7 @@ export async function leaveOrganization(
     if (owners <= 1) {
       return {
         error:
-          "You're the only owner. Make another member an owner first, or delete the organization.",
+          "You're the only owner. Make another member an owner first, or delete the workspace.",
       };
     }
   }
@@ -73,7 +73,7 @@ export async function deleteOrganization(
   if (await hasRenewingSubscription(organization.id)) {
     return {
       error:
-        "This organization has an active subscription. Cancel it under Billing > Manage subscription first, so you aren't charged again.",
+        "This workspace has an active subscription. Cancel it under Billing > Manage subscription first, so you aren't charged again.",
     };
   }
 

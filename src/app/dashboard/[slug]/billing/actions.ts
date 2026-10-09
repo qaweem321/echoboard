@@ -23,7 +23,7 @@ export async function startCheckout(
   // Never start a second subscription for the same organization.
   const subscription = await getOrganizationSubscription(organization.id);
   if (planFromStatus(subscription?.status) === "pro" || hasPaymentProblem(subscription?.status)) {
-    return { error: "This organization already has a subscription. Use Manage subscription." };
+    return { error: "This workspace already has a subscription. Use Manage subscription." };
   }
 
   let url: string;

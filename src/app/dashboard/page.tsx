@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { LAST_ORGANIZATION_COOKIE, pickOrganization } from "@/lib/last-organization";
 import { getUserOrganizations, requireUser } from "@/lib/session";
 
-export const metadata: Metadata = { title: "Choose an organization" };
+export const metadata: Metadata = { title: "Choose a workspace" };
 
 // After login: open the last-used (or only) organization, or let the user choose.
 export default async function DashboardIndexPage() {
@@ -30,7 +30,7 @@ export default async function DashboardIndexPage() {
   return (
     <main className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold">Choose an organization</h1>
+        <h1 className="text-2xl font-bold">Choose a workspace</h1>
         <p className="mt-1 text-muted-foreground">
           Hi {user.name}! You belong to {organizations.length} organizations.
         </p>

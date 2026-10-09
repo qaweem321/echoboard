@@ -33,13 +33,13 @@ export function DangerZone({ slug, organizationName, canDelete }: Props) {
       >
         <input type="hidden" name="slug" value={slug} />
         <div>
-          <p className="font-medium">Leave organization</p>
+          <p className="font-medium">Leave workspace</p>
           <p className="text-sm text-muted-foreground">
             You will lose access to {endSentence(organizationName)}
           </p>
         </div>
         <Button disabled={leaving} variant="danger-outline">
-          {leaving ? "Leaving..." : "Leave organization"}
+          {leaving ? "Leaving..." : "Leave workspace"}
         </Button>
         {leaveState.error && <p className="text-sm text-danger">{leaveState.error}</p>}
       </form>
@@ -48,10 +48,10 @@ export function DangerZone({ slug, organizationName, canDelete }: Props) {
         <form action={deleteAction} className="space-y-3 border-t border-border pt-8">
           <input type="hidden" name="slug" value={slug} />
           <div>
-            <p className="font-medium">Delete organization</p>
+            <p className="font-medium">Delete workspace</p>
             <p className="text-sm text-muted-foreground">
-              Permanently deletes {organizationName}, its members&apos; access and pending
-              invitations. This cannot be undone.
+              Permanently deletes {organizationName} with all its boards, feedback, votes, comments
+              and changelog, and removes everyone&apos;s access. This cannot be undone.
             </p>
           </div>
           <label htmlFor="confirmName" className="block text-sm">
@@ -59,7 +59,7 @@ export function DangerZone({ slug, organizationName, canDelete }: Props) {
           </label>
           <Input id="confirmName" name="confirmName" autoComplete="off" required />
           <Button disabled={deleting} variant="danger">
-            {deleting ? "Deleting..." : "Delete organization"}
+            {deleting ? "Deleting..." : "Delete workspace"}
           </Button>
           {deleteState.error && <p className="text-sm text-danger">{deleteState.error}</p>}
         </form>

@@ -14,7 +14,7 @@ export function PaymentProblemNotice({ slug, canManage, showBillingLink = false 
       <p className="mt-1 text-muted-foreground">
         {canManage
           ? "Update your card under Manage subscription to keep using Pro."
-          : "Ask an owner of this organization to update the payment method."}
+          : "Ask an owner of this workspace to update the payment method."}
         {showBillingLink && canManage && (
           <>
             {" "}

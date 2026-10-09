@@ -66,7 +66,7 @@ function NavContent({ slug, organizations, onNavigate }: NavProps) {
 
       <div className="mt-auto pt-6">
         <p className="px-2 mb-2 text-xs font-semibold uppercase text-subtle-foreground">
-          Your organizations
+          Your workspaces
         </p>
         {organizations.map((org) => (
           <Link
@@ -85,7 +85,7 @@ function NavContent({ slug, organizations, onNavigate }: NavProps) {
           onClick={onNavigate}
           className="block px-2 py-1.5 text-sm text-link hover:underline"
         >
-          + New organization
+          + New workspace
         </Link>
       </div>
     </>

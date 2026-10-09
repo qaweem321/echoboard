@@ -15,7 +15,7 @@ export function RenameForm({ slug, name, canEdit }: Props) {
     <form action={formAction} className="mt-8 space-y-3">
       <input type="hidden" name="slug" value={slug} />
       <label htmlFor="name" className="block text-sm font-medium">
-        Organization name
+        Workspace name
       </label>
       <Input
         id="name"

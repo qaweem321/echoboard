@@ -13,7 +13,9 @@ const messages = {
 };
 
 // A block of code to paste somewhere else, with a Copy button.
-export function CodeSnippet({ code, label }: { code: string; label: string }) {
+type Props = { code: string; label: string; copyLabel?: string };
+
+export function CodeSnippet({ code, label, copyLabel = "Copy code" }: Props) {
   const fieldRef = useRef<HTMLTextAreaElement>(null);
   const { status, copy } = useCopy();
 
@@ -30,7 +32,7 @@ export function CodeSnippet({ code, label }: { code: string; label: string }) {
       />
       <div className="flex items-center gap-3">
         <Button type="button" variant="outline" onClick={() => copy(code, fieldRef.current)}>
-          Copy code
+          {copyLabel}
         </Button>
         <p aria-live="polite" className="text-sm text-success">
           {messages[status]}

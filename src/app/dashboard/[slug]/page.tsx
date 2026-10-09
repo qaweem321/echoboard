@@ -8,6 +8,7 @@ import { effectivePlan, hasPaymentProblem, plans } from "@/lib/billing/plans";
 import { endSentence } from "@/lib/format";
 import { can } from "@/lib/permissions";
 import { requireMembership } from "@/lib/session";
+import { GetStarted } from "./get-started";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -49,6 +50,8 @@ export default async function OverviewPage({ params }: { params: Promise<{ slug:
           </div>
         ))}
       </div>
+
+      {postCount === 0 && <GetStarted slug={slug} organization={organization} />}
     </div>
   );
 }
