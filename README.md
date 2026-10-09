@@ -14,7 +14,8 @@ your own company.
 | --- | --- | --- |
 | Who signs up | Other companies, who pay you monthly (Free and Pro plans) | Your team (and your clients' teams) |
 | Billing | Polar or Stripe (`BILLING_PROVIDER="polar"` or `"stripe"`) | Turned off (`BILLING_PROVIDER="none"`): every workspace gets every feature, no pricing shown |
-| License | Extended | Standard |
+
+One license covers both.
 
 In both cases the people who vote and comment on a portal never pay and never need an account.
 See "Billing" below for the setup of each.
@@ -306,7 +307,6 @@ custom changes are not. Updates are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-Commercial license; see [LICENSE](LICENSE). The **Standard** license covers running Echoboard
-for your own company or your clients' companies; the **Extended** license adds running it as a
-paid service for other companies (your own feedback SaaS). Neither lets you resell or share the
+Commercial license; see [LICENSE](LICENSE). Use Echoboard for your own company, for clients,
+or as your own paid feedback service for other companies. You may not resell or share the
 source code itself.

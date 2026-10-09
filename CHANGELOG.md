@@ -100,7 +100,7 @@ First public version.
   off webhooks and custom domains; `npm run db:reset-demo` restores the sample workspace.
 - Custom domains can only be saved once their DNS points to the app (no claiming other
   companies' domains). Rate limits use the address added by the nearest proxy.
-- New landing page, README, Standard and Extended licenses.
+- New landing page, README and a commercial license (own use, clients, or your own hosted service).
 
 ### Polish
 - New workspaces start with a "Feature requests" board, and the Overview shows a Get started guide until the first feedback arrives.
