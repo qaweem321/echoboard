@@ -8,6 +8,17 @@ Every customer company gets its own **workspace** with its own team, portal, bra
 domain. You rebrand Echoboard, set your prices, and sell it under your own name, or run it for
 your own company.
 
+## Two ways to use it
+
+| | Run it as your own feedback SaaS | Use it for your own company |
+| --- | --- | --- |
+| Who signs up | Other companies, who pay you monthly (Free and Pro plans) | Your team (and your clients' teams) |
+| Billing | Polar or Stripe (`BILLING_PROVIDER="polar"` or `"stripe"`) | Turned off (`BILLING_PROVIDER="none"`): every workspace gets every feature, no pricing shown |
+| License | Extended | Standard |
+
+In both cases the people who vote and comment on a portal never pay and never need an account.
+See "Billing" below for the setup of each.
+
 ## What's inside
 
 **For your customers' users (no account needed)**
