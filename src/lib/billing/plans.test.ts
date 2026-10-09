@@ -5,6 +5,7 @@ import {
   effectivePlan,
   hasPaymentProblem,
   limitLabel,
+  periodNote,
   planFromStatus,
   plans,
 } from "./plans";
@@ -48,4 +49,26 @@ test("with billing off, every workspace gets Pro", () => {
   assert.equal(effectivePlan(null, { BILLING_PROVIDER: "none" }), "pro");
   assert.equal(effectivePlan(null, { BILLING_PROVIDER: "polar" }), "free");
   assert.equal(effectivePlan("active", { BILLING_PROVIDER: "polar" }), "pro");
+});
+
+test("explains what happens when the period ends", () => {
+  const currentPeriodEnd = new Date("2026-10-14T12:00:00Z");
+  assert.equal(
+    periodNote({ status: "trialing", cancelAtPeriodEnd: false, currentPeriodEnd }),
+    "Free trial ends on Oct 14, 2026.",
+  );
+  assert.equal(
+    periodNote({ status: "active", cancelAtPeriodEnd: false, currentPeriodEnd }),
+    "Renews on Oct 14, 2026.",
+  );
+  for (const status of ["trialing", "active"]) {
+    assert.equal(
+      periodNote({ status, cancelAtPeriodEnd: true, currentPeriodEnd }),
+      "Cancelled: Pro ends on Oct 14, 2026, then you're back on Free.",
+    );
+  }
+  assert.equal(
+    periodNote({ status: "active", cancelAtPeriodEnd: false, currentPeriodEnd: null }),
+    null,
+  );
 });

@@ -1,3 +1,5 @@
+import { formatDate } from "@/lib/format";
+
 // Plans for the workspaces using your feedback app: limits, price and features shown on the
 // pricing section and Billing page. Change the limits here; they're enforced on the server.
 // The real price is set in Polar or Stripe; keep `price` here in sync with it.
@@ -84,4 +86,19 @@ export function billingEnabled(env: Env = process.env) {
 // The plan whose limits apply: the paid status, or Pro for everyone when billing is off.
 export function effectivePlan(status: string | null | undefined, env: Env = process.env): PlanId {
   return billingEnabled(env) ? planFromStatus(status) : "pro";
+}
+
+type PeriodInfo = { status: string; cancelAtPeriodEnd: boolean; currentPeriodEnd: Date | null };
+
+// What happens when the current period ends, shown on the Billing page.
+// A cancelled subscription keeps Pro until then, so say that clearly (also during a trial).
+export function periodNote({ status, cancelAtPeriodEnd, currentPeriodEnd }: PeriodInfo) {
+  if (!currentPeriodEnd) {
+    return null;
+  }
+  const date = formatDate(currentPeriodEnd);
+  if (cancelAtPeriodEnd) {
+    return `Cancelled: Pro ends on ${date}, then you're back on Free.`;
+  }
+  return status === "trialing" ? `Free trial ends on ${date}.` : `Renews on ${date}.`;
 }

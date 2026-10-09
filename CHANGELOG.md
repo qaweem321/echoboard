@@ -6,14 +6,6 @@ Notable changes for buyers of Echoboard. The format follows
 
 ## [Unreleased]
 
-### Changed
-- New workspaces start with a "Feature requests" board, and the Overview shows a Get started guide until the first feedback arrives.
-- The app says "workspace" everywhere (it said "organization" in a few places).
-- Free plan allows 2 boards; the sample workspace fits the Free plan.
-- The widget panel is kept out of search engines.
-- Escape closes the widget panel even while typing inside it.
-- A changelog entry can link any idea except closed ones, so an idea can ship straight from Open.
-
 ## [1.0.0] - 2026-10-09
 
 First public version.
@@ -109,6 +101,15 @@ First public version.
 - Custom domains can only be saved once their DNS points to the app (no claiming other
   companies' domains). Rate limits use the address added by the nearest proxy.
 - New landing page, README, Standard and Extended licenses.
+
+### Polish
+- New workspaces start with a "Feature requests" board, and the Overview shows a Get started guide until the first feedback arrives.
+- The app says "workspace" everywhere (it said "organization" in a few places).
+- Free plan allows 2 boards; the sample workspace fits the Free plan.
+- The widget panel is kept out of search engines.
+- Escape closes the widget panel even while typing inside it.
+- A changelog entry can link any idea except closed ones, so an idea can ship straight from Open.
+- The Billing page says clearly when Pro was cancelled ("Cancelled: Pro ends on ..., then you're back on Free"), also during a free trial.
 
 ### Foundation
 - Built on StarterKit 1.0.0: accounts, organizations with roles and invitations, Polar or Stripe
