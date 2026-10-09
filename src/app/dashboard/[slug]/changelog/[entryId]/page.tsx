@@ -18,7 +18,7 @@ export default async function ChangelogEntryPage({ params }: Props) {
     getEntry(organization.id, entryId, false),
     listLinkablePosts(organization.id),
   ]);
-  // Keep ideas that are linked but have since left the roadmap, so saving doesn't drop them.
+  // Keep linked ideas that were closed since, so saving doesn't drop them.
   const listed = new Set(roadmapPosts.map((post) => post.id));
   const linkablePosts = [...entry.posts.filter((post) => !listed.has(post.id)), ...roadmapPosts];
   const base = `/dashboard/${slug}/changelog`;

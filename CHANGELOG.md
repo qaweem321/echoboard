@@ -11,6 +11,8 @@ Notable changes for buyers of Echoboard. The format follows
 - The app says "workspace" everywhere (it said "organization" in a few places).
 - Free plan allows 2 boards; the sample workspace fits the Free plan.
 - The widget panel is kept out of search engines.
+- Escape closes the widget panel even while typing inside it.
+- A changelog entry can link any idea except closed ones, so an idea can ship straight from Open.
 
 ## [1.0.0] - 2026-10-09
 

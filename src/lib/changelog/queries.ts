@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNotNull, isNull, type SQL, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, ne, type SQL, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { db } from "@/db";
 import { qualified } from "@/db/qualified";
@@ -72,7 +72,8 @@ export async function getEntry(organizationId: string, entryId: string, publishe
 
 const LINKABLE_LIMIT = 200;
 
-// Ideas the team may link to an entry: those on the roadmap, most-voted first.
+// Ideas the team may link to an entry: everything except closed ideas (an idea can ship
+// straight from Open), roadmap ideas first, then most-voted.
 export async function listLinkablePosts(organizationId: string) {
   return db
     .select({ id: posts.id, title: posts.title, status: posts.status })
@@ -81,9 +82,12 @@ export async function listLinkablePosts(organizationId: string) {
       and(
         eq(posts.organizationId, organizationId),
         isNull(posts.mergedIntoId),
-        inArray(posts.status, ["planned", "in_progress", "complete"]),
+        ne(posts.status, "closed"),
       ),
     )
-    .orderBy(desc(posts.voteCount))
+    .orderBy(
+      sql`${posts.status} in ('planned', 'in_progress', 'complete') desc`,
+      desc(posts.voteCount),
+    )
     .limit(LINKABLE_LIMIT);
 }

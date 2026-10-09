@@ -14,6 +14,11 @@ type Props = {
 
 type View = "ideas" | "share";
 
+// The page around the widget listens for this and closes the panel (public/widget.js).
+function closePanel() {
+  window.parent.postMessage({ type: WIDGET_CLOSE_MESSAGE }, "*");
+}
+
 export function EmbedApp({ organization, boards }: Props) {
   const token = useVoterToken(organization.slug);
   const [view, setView] = useState<View>("ideas");
@@ -23,13 +28,20 @@ export function EmbedApp({ organization, boards }: Props) {
   const [inFrame, setInFrame] = useState(false);
 
   useEffect(() => {
-    setInFrame(window.parent !== window);
+    const framed = window.parent !== window;
+    setInFrame(framed);
+    if (!framed) {
+      return;
+    }
+    // Key presses inside the panel don't reach the website around it, so Escape is handled here.
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closePanel();
+      }
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
   }, []);
-
-  function close() {
-    // The page around the widget listens for this and closes the panel (public/widget.js).
-    window.parent.postMessage({ type: WIDGET_CLOSE_MESSAGE }, "*");
-  }
 
   return (
     <div className="flex h-dvh flex-col bg-background">
@@ -38,7 +50,7 @@ export function EmbedApp({ organization, boards }: Props) {
         {inFrame && (
           <button
             type="button"
-            onClick={close}
+            onClick={closePanel}
             aria-label="Close feedback"
             className="rounded-md p-1.5 text-subtle-foreground hover:bg-accent hover:text-foreground"
           >

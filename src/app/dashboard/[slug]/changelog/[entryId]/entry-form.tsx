@@ -58,9 +58,7 @@ export function EntryForm({ slug, entry, linkablePosts }: Props) {
       <fieldset>
         <legend className="mb-1 text-sm font-medium">Ideas this ships</legend>
         {linkablePosts.length === 0 ? (
-          <p className="text-sm text-subtle-foreground">
-            No planned, in-progress or complete ideas to link yet.
-          </p>
+          <p className="text-sm text-subtle-foreground">No ideas to link yet.</p>
         ) : (
           <ul className="max-h-64 space-y-1 overflow-y-auto rounded-lg border border-border p-3">
             {linkablePosts.map((post) => (
