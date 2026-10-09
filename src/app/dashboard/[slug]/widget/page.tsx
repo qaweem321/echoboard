@@ -8,7 +8,9 @@ export const metadata: Metadata = { title: "Widget" };
 export default async function WidgetPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { organization } = await requireMembership(slug);
-  const script = `<script src="${absoluteUrl("/widget.js")}" data-workspace="${organization.slug}" async></script>`;
+  // The button uses the workspace's brand color (set under Branding) when there is one.
+  const color = organization.brandColor ? ` data-color="${organization.brandColor}"` : "";
+  const script = `<script src="${absoluteUrl("/widget.js")}" data-workspace="${organization.slug}"${color} async></script>`;
   const ownButton = `<a href="#" onclick="FeedbackWidget.open(); return false;">Send feedback</a>`;
 
   return (

@@ -12,6 +12,7 @@ import {
   withinVisitorLimit,
 } from "@/lib/feedback/visitor";
 import { checkCommentInput, checkPostInput, checkVoterDetails } from "@/lib/feedback-input";
+import { portalBase } from "@/lib/portal/links";
 import { getPortal, getTeamViewer } from "@/lib/portal/queries";
 import { refreshPortal } from "@/lib/portal/refresh";
 import { getOrCreateVoter } from "@/lib/portal/voter";
@@ -84,7 +85,7 @@ export async function createPost(
     authorUserId: teamViewer?.userId ?? null,
   });
   refreshPortal(organizationSlug);
-  redirect(`/p/${organizationSlug}/posts/${postId}`);
+  redirect(`${await portalBase(organizationSlug)}/posts/${postId}`);
 }
 
 export type CommentFormState = { error?: string; body?: string; sent?: number };

@@ -1,11 +1,56 @@
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
+import { appHostName, customDomainPath, hostName, PORTAL_DOMAIN_HEADER } from "@/lib/custom-domain";
 import { LAST_ORGANIZATION_COOKIE, organizationSlugFromPath } from "@/lib/last-organization";
+import { workspaceForDomain } from "@/lib/portal/domain-lookup";
 
-// Runs before private pages render. Visitors without a login cookie go to the login page,
-// which sends them back here after they log in. This is a fast cookie check only; the
-// real session check still happens in requireUser().
-export function proxy(request: NextRequest) {
+const appHost = appHostName();
+
+// Runs before every page and API request.
+export async function proxy(request: NextRequest) {
+  // Only this proxy may say a request came in on a custom domain.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.delete(PORTAL_DOMAIN_HEADER);
+
+  const host = hostName(request.headers.get("host"));
+  if (host && host !== appHost) {
+    const slug = await workspaceForDomain(host);
+    if (slug) {
+      return serveCustomDomain(request, requestHeaders, host, slug);
+    }
+  }
+
+  const { pathname } = request.nextUrl;
+  if (
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/") ||
+    pathname === "/onboarding"
+  ) {
+    return protectPrivatePage(request, requestHeaders);
+  }
+  return NextResponse.next({ request: { headers: requestHeaders } });
+}
+
+// feedback.acme.com/roadmap shows /p/acme/roadmap; nothing outside the portal is reachable.
+function serveCustomDomain(
+  request: NextRequest,
+  requestHeaders: Headers,
+  host: string,
+  slug: string,
+) {
+  requestHeaders.set(PORTAL_DOMAIN_HEADER, host);
+  const path = customDomainPath(request.nextUrl.pathname, slug);
+  if (!path) {
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
+  const url = request.nextUrl.clone();
+  url.pathname = path;
+  return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+}
+
+// Visitors without a login cookie go to the login page, which sends them back here after they
+// log in. This is a fast cookie check only; the real session check is in requireUser().
+function protectPrivatePage(request: NextRequest, requestHeaders: Headers) {
   const path = request.nextUrl.pathname + request.nextUrl.search;
 
   if (!getSessionCookie(request)) {
@@ -16,7 +61,6 @@ export function proxy(request: NextRequest) {
 
   // Tell the page which URL was requested, so requireUser() can send an expired session
   // back to the same page after logging in again.
-  const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", path);
   const response = NextResponse.next({ request: { headers: requestHeaders } });
 
@@ -35,5 +79,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/onboarding"],
+  // Everything except Next.js build files and images.
+  matcher: ["/((?!_next/static|_next/image).*)"],
 };

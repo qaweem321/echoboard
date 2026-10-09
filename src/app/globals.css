@@ -21,6 +21,9 @@
   --input: oklch(87.2% 0.01 258.338);
   --input-hover: oklch(70.7% 0.022 261.325);
   --link: oklch(54.6% 0.245 262.881);
+  /* Buttons and selected states. Portals override it with the workspace's brand color. */
+  --primary: oklch(54.6% 0.245 262.881);
+  --primary-foreground: oklch(100% 0 0);
   --danger: oklch(57.7% 0.245 27.325);
   --success: oklch(52.7% 0.154 150.069);
   color-scheme: light;
@@ -40,6 +43,9 @@
   --input: oklch(37.3% 0.034 259.733);
   --input-hover: oklch(44.6% 0.03 256.802);
   --link: oklch(70.7% 0.165 254.624);
+  /* Buttons and selected states. Portals override it with the workspace's brand color. */
+  --primary: oklch(54.6% 0.245 262.881);
+  --primary-foreground: oklch(100% 0 0);
   --danger: oklch(70.4% 0.191 22.216);
   --success: oklch(79.2% 0.209 151.711);
   color-scheme: dark;
@@ -59,6 +65,8 @@
   --color-input: var(--input);
   --color-input-hover: var(--input-hover);
   --color-link: var(--link);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
   --color-danger: var(--danger);
   --color-success: var(--success);
 }

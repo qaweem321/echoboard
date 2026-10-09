@@ -21,6 +21,8 @@ Stripe billing.
 - **Embeddable widget:** one `<script>` tag adds a Feedback button and panel to any website
   (vote, search and share ideas without an account); works where third-party cookies are
   blocked
+- **White-label per workspace:** brand color, logo, hide "Powered by", and a **custom domain**
+  (feedback.theircompany.com) for the portal
 - Changelog (drafts, publish, link shipped ideas) with a public page per entry
 - **"It shipped" emails:** status changes and published changelog entries email everyone who
   voted and left an email, one email per person, with unsubscribe links

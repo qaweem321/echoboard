@@ -15,6 +15,13 @@
       "when": 1791472663351,
       "tag": "0001_changelog",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791546553497,
+      "tag": "0002_branding",
+      "breakpoints": true
     }
   ]
 }

@@ -61,6 +61,16 @@ Notable changes for buyers of Echoboard. The format follows
 - Only the widget panel may be shown inside other websites; every other page still refuses to
   be framed.
 
+### White-label branding
+- New Branding page: brand color (buttons, votes and selected tabs, with text that stays
+  readable), logo link, and hiding the "Powered by" line.
+- Custom domains: a workspace can show its portal on its own address (e.g.
+  feedback.yourcompany.com) with clean links; a DNS check says whether the CNAME is set up.
+  Only that workspace's portal is reachable on its domain.
+- Update emails link to the workspace's own domain when it has one.
+- The widget panel uses the brand color, and the widget code includes it for the button.
+- "Powered by" links to your own site.
+
 ### Foundation
 - Built on StarterKit 1.0.0: accounts, organizations with roles and invitations, Polar or Stripe
   billing, emails, security headers, rate limits and environment checks.

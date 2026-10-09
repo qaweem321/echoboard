@@ -6,7 +6,7 @@ const base =
   "inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50";
 
 const variants = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700",
+  primary: "bg-primary text-primary-foreground hover:bg-primary/90",
   outline: "border border-input hover:bg-surface",
   danger: "bg-red-600 text-white hover:bg-red-700",
   "danger-outline": "border border-danger/60 text-danger hover:bg-danger/10",

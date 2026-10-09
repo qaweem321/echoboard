@@ -3,9 +3,10 @@ import type { PortalPost } from "@/lib/portal/queries";
 import { StatusBadge } from "./status-badge";
 import { VoteButton } from "./vote-button";
 
-type Props = { organizationSlug: string; post: PortalPost; showBoard: boolean };
+// base: "/p/acme", or "" on the workspace's own domain.
+type Props = { organizationSlug: string; base: string; post: PortalPost; showBoard: boolean };
 
-export function PostRow({ organizationSlug, post, showBoard }: Props) {
+export function PostRow({ organizationSlug, base, post, showBoard }: Props) {
   return (
     <li className="flex gap-4 p-4">
       <VoteButton
@@ -16,10 +17,7 @@ export function PostRow({ organizationSlug, post, showBoard }: Props) {
         title={post.title}
       />
       <div className="min-w-0 flex-1">
-        <Link
-          href={`/p/${organizationSlug}/posts/${post.id}`}
-          className="font-medium hover:underline"
-        >
+        <Link href={`${base}/posts/${post.id}`} className="font-medium hover:underline">
           {post.title}
         </Link>
         {post.body && (

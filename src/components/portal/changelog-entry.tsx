@@ -2,11 +2,11 @@ import Link from "next/link";
 import type { ChangelogEntry as Entry } from "@/lib/changelog/queries";
 import { formatDate } from "@/lib/format";
 
-type Props = { organizationSlug: string; entry: Entry; titleAsLink?: boolean };
+// base: "/p/acme", or "" on the workspace's own domain.
+type Props = { base: string; entry: Entry; titleAsLink?: boolean };
 
 // One published changelog entry: date, title, text and the ideas it shipped.
-export function ChangelogEntry({ organizationSlug, entry, titleAsLink = false }: Props) {
-  const base = `/p/${organizationSlug}`;
+export function ChangelogEntry({ base, entry, titleAsLink = false }: Props) {
   return (
     <article className="space-y-3">
       {entry.publishedAt && (

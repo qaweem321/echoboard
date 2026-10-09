@@ -1,0 +1,76 @@
+"use server";
+
+import { and, eq, ne } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { db } from "@/db";
+import { organizations } from "@/db/schema";
+import { checkLogoUrl, normalizeDomain, normalizeHexColor } from "@/lib/branding";
+import { appHostName } from "@/lib/custom-domain";
+import { checkDomainDns, type DnsStatus } from "@/lib/portal/dns-check";
+import { refreshPortal } from "@/lib/portal/refresh";
+import { requirePermission } from "@/lib/session";
+
+function refresh(slug: string) {
+  revalidatePath(`/dashboard/${slug}/branding`);
+  refreshPortal(slug);
+}
+
+export type BrandingState = { error?: string; saved?: boolean };
+
+export async function saveBranding(
+  _previous: BrandingState,
+  formData: FormData,
+): Promise<BrandingState> {
+  const slug = String(formData.get("slug"));
+  const { organization } = await requirePermission(slug, "organization:update");
+
+  const color = normalizeHexColor(formData.get("brandColor"));
+  if ("error" in color) {
+    return color;
+  }
+  const logo = checkLogoUrl(formData.get("logoUrl"));
+  if ("error" in logo) {
+    return logo;
+  }
+  await db
+    .update(organizations)
+    .set({
+      brandColor: color.color,
+      logoUrl: logo.url,
+      hidePoweredBy: formData.get("hidePoweredBy") === "on",
+    })
+    .where(eq(organizations.id, organization.id));
+  refresh(slug);
+  return { saved: true };
+}
+
+export type DomainState = { error?: string; saved?: boolean; dns?: DnsStatus };
+
+export async function saveDomain(_previous: DomainState, formData: FormData): Promise<DomainState> {
+  const slug = String(formData.get("slug"));
+  const { organization } = await requirePermission(slug, "organization:update");
+  const host = appHostName();
+
+  const checked = normalizeDomain(formData.get("customDomain"), host);
+  if ("error" in checked) {
+    return checked;
+  }
+  if (checked.domain) {
+    const taken = await db.$count(
+      organizations,
+      and(eq(organizations.customDomain, checked.domain), ne(organizations.id, organization.id)),
+    );
+    if (taken > 0) {
+      return { error: "Another workspace already uses that domain." };
+    }
+  }
+  await db
+    .update(organizations)
+    .set({ customDomain: checked.domain })
+    .where(eq(organizations.id, organization.id));
+  refresh(slug);
+  return {
+    saved: true,
+    dns: checked.domain ? await checkDomainDns(checked.domain, host) : undefined,
+  };
+}

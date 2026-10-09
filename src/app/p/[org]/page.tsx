@@ -3,6 +3,7 @@ import { Pager } from "@/components/pager";
 import { PostRow } from "@/components/portal/post-row";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
+import { portalBase } from "@/lib/portal/links";
 import { getPortal, listPortalPosts } from "@/lib/portal/queries";
 import { currentVoterHash } from "@/lib/portal/voter";
 import { parsePortalParams, portalHref, portalSorts, SEARCH_MAX } from "@/lib/portal-params";
@@ -18,7 +19,8 @@ export default async function PortalHomePage({ params, searchParams }: Props) {
   const { organization, boards } = await getPortal(org);
   const options = parsePortalParams(rawSearch);
   const board = boards.find((candidate) => candidate.slug === options.board) ?? null;
-  const base = `/p/${organization.slug}`;
+  // Links in this page: "/p/acme" here, or "/" on the workspace's own domain.
+  const base = (await portalBase(organization.slug)) || "/";
 
   if (boards.length === 0) {
     return (
@@ -70,7 +72,7 @@ export default async function PortalHomePage({ params, searchParams }: Props) {
               className={cn(
                 "rounded-full border px-3 py-1 text-sm",
                 item.slug === current.board
-                  ? "border-link bg-link/10 text-link"
+                  ? "border-primary bg-primary text-primary-foreground"
                   : "border-border text-muted-foreground hover:text-foreground",
               )}
             >
@@ -127,6 +129,7 @@ export default async function PortalHomePage({ params, searchParams }: Props) {
             <PostRow
               key={post.id}
               organizationSlug={organization.slug}
+              base={base === "/" ? "" : base}
               post={post}
               showBoard={!board && boards.length > 1}
             />

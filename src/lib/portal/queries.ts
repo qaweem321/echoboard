@@ -26,7 +26,15 @@ import { isUuid } from "@/lib/uuid";
 export async function findPortal(organizationSlug: string) {
   const rows = await db
     .select({
-      organization: { id: organizations.id, name: organizations.name, slug: organizations.slug },
+      organization: {
+        id: organizations.id,
+        name: organizations.name,
+        slug: organizations.slug,
+        brandColor: organizations.brandColor,
+        logoUrl: organizations.logoUrl,
+        customDomain: organizations.customDomain,
+        hidePoweredBy: organizations.hidePoweredBy,
+      },
       board: {
         id: boards.id,
         name: boards.name,

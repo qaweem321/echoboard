@@ -3,6 +3,7 @@ import { Pager } from "@/components/pager";
 import { ChangelogEntry } from "@/components/portal/changelog-entry";
 import { listEntries } from "@/lib/changelog/queries";
 import { endSentence } from "@/lib/format";
+import { portalBase } from "@/lib/portal/links";
 import { getPortal } from "@/lib/portal/queries";
 import { buildHref, parsePage, type RawSearchParams } from "@/lib/url-params";
 
@@ -15,7 +16,8 @@ export default async function PortalChangelogPage({ params, searchParams }: Prop
   const { organization } = await getPortal(org);
   const page = parsePage(rawSearch.page);
   const { entries, hasMore } = await listEntries(organization.id, true, page);
-  const base = `/p/${organization.slug}/changelog`;
+  const portal = await portalBase(organization.slug);
+  const base = `${portal}/changelog`;
 
   return (
     <div className="space-y-8">
@@ -34,7 +36,7 @@ export default async function PortalChangelogPage({ params, searchParams }: Prop
         <div className="divide-y divide-border">
           {entries.map((entry) => (
             <div key={entry.id} className="py-8 first:pt-0">
-              <ChangelogEntry organizationSlug={organization.slug} entry={entry} titleAsLink />
+              <ChangelogEntry base={portal} entry={entry} titleAsLink />
             </div>
           ))}
         </div>

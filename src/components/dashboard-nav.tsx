@@ -22,6 +22,7 @@ function NavContent({ slug, organizations, onNavigate }: NavProps) {
     { label: "Changelog", href: `${base}/changelog` },
     { label: "Boards", href: `${base}/boards` },
     { label: "Widget", href: `${base}/widget` },
+    { label: "Branding", href: `${base}/branding` },
     { label: "Members", href: `${base}/members` },
     { label: "Billing", href: `${base}/billing` },
     { label: "Settings", href: `${base}/settings` },

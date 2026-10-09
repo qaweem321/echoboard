@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { posts, voters, votes } from "@/db/schema";
 import { sendEmails } from "@/lib/email";
 import { requireEnv } from "@/lib/env";
+import { publicPortalUrl } from "@/lib/portal/links";
 import { type PostStatus, postStatusLabels } from "@/lib/post-status";
 import { rateLimit } from "@/lib/rate-limit";
 import { signUnsubscribe } from "@/lib/unsubscribe-token";
@@ -44,7 +45,7 @@ export async function countReachableVoters(organizationId: string, postId: strin
 }
 
 type VoterUpdate = {
-  organization: { id: string; name: string; slug: string };
+  organization: { id: string; name: string; slug: string; customDomain: string | null };
   postIds: string[];
   status: PostStatus;
   announcement?: { id: string; title: string };
@@ -85,7 +86,6 @@ export async function emailVoters(
   }
 
   const secret = requireEnv("BETTER_AUTH_SECRET");
-  const portal = `/p/${organization.slug}`;
   const emails = recipients.map((recipient) => {
     const query = `?v=${recipient.voterId}&t=${signUnsubscribe(recipient.voterId, secret)}`;
     const unsubscribeUrl = absoluteUrl(`/unsubscribe${query}`);
@@ -97,11 +97,11 @@ export async function emailVoters(
         statusLabel: postStatusLabels[status],
         posts: recipient.posts.map((post) => ({
           title: post.title,
-          url: absoluteUrl(`${portal}/posts/${post.id}`),
+          url: publicPortalUrl(organization, `/posts/${post.id}`),
         })),
         announcement: announcement && {
           title: announcement.title,
-          url: absoluteUrl(`${portal}/changelog/${announcement.id}`),
+          url: publicPortalUrl(organization, `/changelog/${announcement.id}`),
         },
         unsubscribeUrl,
       }),

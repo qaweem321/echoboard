@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { StatusBadge } from "@/components/portal/status-badge";
 import { VoteButton } from "@/components/portal/vote-button";
 import { formatDate } from "@/lib/format";
+import { portalBase } from "@/lib/portal/links";
 import { getPortal, getPortalPost, getTeamViewer } from "@/lib/portal/queries";
 import { currentVoterHash } from "@/lib/portal/voter";
 import { CommentForm } from "../../comment-form";
@@ -36,7 +37,7 @@ export default async function PortalPostPage({ params }: Props) {
     getPortalPost(organization.id, postId, await currentVoterHash(organization.id)),
     getTeamViewer(organization.id),
   ]);
-  const base = `/p/${organization.slug}`;
+  const base = await portalBase(organization.slug);
 
   // Duplicates send visitors to the post they were merged into.
   if (post.mergedIntoId) {
@@ -45,7 +46,10 @@ export default async function PortalPostPage({ params }: Props) {
 
   return (
     <article className="space-y-8">
-      <Link href={`${base}?board=${post.board.slug}`} className="text-sm text-link hover:underline">
+      <Link
+        href={`${base || "/"}?board=${post.board.slug}`}
+        className="text-sm text-link hover:underline"
+      >
         ← {post.board.name}
       </Link>
 

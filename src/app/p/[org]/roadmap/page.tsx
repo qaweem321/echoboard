@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { VoteButton } from "@/components/portal/vote-button";
+import { portalBase } from "@/lib/portal/links";
 import { getPortal, listRoadmapPosts, roadmapStatuses } from "@/lib/portal/queries";
 import { currentVoterHash } from "@/lib/portal/voter";
 import { postStatusLabels } from "@/lib/post-status";
@@ -18,6 +19,7 @@ const columnHints = {
 export default async function RoadmapPage({ params }: Props) {
   const { org } = await params;
   const { organization } = await getPortal(org);
+  const base = await portalBase(organization.slug);
   const posts = await listRoadmapPosts(organization.id, await currentVoterHash(organization.id));
 
   return (
@@ -63,7 +65,7 @@ export default async function RoadmapPage({ params }: Props) {
                       />
                       <div className="min-w-0">
                         <Link
-                          href={`/p/${organization.slug}/posts/${post.id}`}
+                          href={`${base}/posts/${post.id}`}
                           className="text-sm font-medium hover:underline break-words"
                         >
                           {post.title}

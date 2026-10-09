@@ -47,6 +47,13 @@ Read the docs that ship with the package before using a Next.js API:
   (`src/app/embed/[org]/`) in an iframe. The panel sends a voter token header (no cookies) to
   `src/app/api/embed/[org]/posts` and token-taking actions. Visitor logic shared with the portal
   lives in `src/lib/feedback/visitor.ts`. Only `/embed/*` may be framed (`next.config.ts`).
+- White-label: branding columns on `organizations`; checks in `src/lib/branding.ts`; the
+  portal applies `brandStyle()` (sets `--primary`). Custom domains: `src/proxy.ts` rewrites
+  them with `customDomainPath()` (`src/lib/custom-domain.ts`). Build portal links with
+  `portalBase(slug)` (empty on a custom domain), and full links for emails with
+  `publicPortalUrl()` (`src/lib/portal/links.ts`). Never hard-code `/p/<slug>` in the portal.
+- Buttons and selected states use the `primary` color token (`bg-primary`,
+  `text-primary-foreground`), so workspaces can rebrand them.
 - `src/lib/notifications/`: voter emails. `emailVoters()` finds recipients, then sends after
   the response (`after()`), rate limited per workspace. Templates are plain functions with tests.
 - `src/lib/changelog/`: changelog input checks and queries. Dashboard in
@@ -63,7 +70,8 @@ Read the docs that ship with the package before using a Next.js API:
 - `src/lib/env.ts`: environment checks at startup (`src/instrumentation.ts`).
 - `src/lib/demo.ts`: `isDemoMode()` (`DEMO_MODE="true"`): no emails, no verification, banner.
   Anything new that sends email needs a demo-mode path (see invitations).
-- `src/proxy.ts`: logged-out redirect with `?next=`, last-used organization cookie.
+- `src/proxy.ts`: custom-domain rewrites, logged-out redirect with `?next=`, last-used
+  organization cookie.
 - `src/config/site.ts`: name, branding, `absoluteUrl()`.
 - `src/components/ui/`: `Button`/`ButtonLink` (variants), `Input`/`Select`, `SubmitButton`,
   `Skeleton`. Shared pieces: `PlanCard`, `Logo`, `UserMenu`, `PaymentProblemNotice`.
