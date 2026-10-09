@@ -11,17 +11,19 @@ import {
   memberships,
   organizations,
   posts,
+  subscriptions,
   users,
   voters,
   votes,
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { planFromStatus, plans } from "@/lib/billing/plans";
 import { postSearchFilter } from "@/lib/feedback/filters";
 import { PORTAL_PAGE_SIZE, type PortalParams } from "@/lib/portal-params";
 import { listedStatuses } from "@/lib/post-status";
 import { isUuid } from "@/lib/uuid";
 
-// A workspace's public portal: the organization and its boards, in one query.
+// A workspace's public portal: the organization (with its plan) and its boards, in one query.
 // Returns null for an unknown workspace (for API routes); pages use getPortal().
 export async function findPortal(organizationSlug: string) {
   const rows = await db
@@ -35,6 +37,7 @@ export async function findPortal(organizationSlug: string) {
         customDomain: organizations.customDomain,
         hidePoweredBy: organizations.hidePoweredBy,
       },
+      subscriptionStatus: subscriptions.status,
       board: {
         id: boards.id,
         name: boards.name,
@@ -43,6 +46,7 @@ export async function findPortal(organizationSlug: string) {
       },
     })
     .from(organizations)
+    .leftJoin(subscriptions, eq(subscriptions.organizationId, organizations.id))
     .leftJoin(boards, eq(boards.organizationId, organizations.id))
     .where(eq(organizations.slug, organizationSlug))
     .orderBy(asc(boards.createdAt), asc(boards.name));
@@ -50,8 +54,14 @@ export async function findPortal(organizationSlug: string) {
   if (rows.length === 0) {
     return null;
   }
+  const { organization, subscriptionStatus } = rows[0];
+  const plan = plans[planFromStatus(subscriptionStatus)];
   return {
-    organization: rows[0].organization,
+    organization: {
+      ...organization,
+      // A workspace that left Pro shows "Powered by" again.
+      hidePoweredBy: organization.hidePoweredBy && plan.removeBranding,
+    },
     boards: rows.flatMap((row) => (row.board ? [row.board] : [])),
   };
 }

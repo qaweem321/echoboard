@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { SimilarIdeas } from "@/components/portal/similar-ideas";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { POST_BODY_MAX, POST_TITLE_MAX, VOTER_NAME_MAX } from "@/lib/feedback-input";
@@ -10,12 +11,16 @@ type Props = {
   organizationSlug: string;
   boards: { id: string; name: string }[];
   defaultBoardId?: string;
+  // Start of portal links: "/p/acme", or "" on the workspace's own domain.
+  base: string;
 };
 
 // "Share an idea". No account needed; name and email are optional.
-export function PostForm({ organizationSlug, boards, defaultBoardId }: Props) {
+export function PostForm({ organizationSlug, boards, defaultBoardId, base }: Props) {
   const [state, formAction] = useActionState(createPost, {} as PostFormState);
   const values = state.values;
+  // Watched to suggest similar ideas while typing.
+  const [title, setTitle] = useState(values?.title ?? "");
 
   return (
     <form action={formAction} className="space-y-3">
@@ -46,9 +51,11 @@ export function PostForm({ organizationSlug, boards, defaultBoardId }: Props) {
         minLength={3}
         maxLength={POST_TITLE_MAX}
         defaultValue={values?.title}
+        onChange={(event) => setTitle(event.target.value)}
         placeholder="Short title, e.g. Export reports to CSV"
         aria-label="Title"
       />
+      <SimilarIdeas organizationSlug={organizationSlug} title={title} base={base} />
       <Textarea
         name="body"
         maxLength={POST_BODY_MAX}

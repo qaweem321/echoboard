@@ -11,11 +11,22 @@ type Props = {
   logoUrl: string | null;
   hidePoweredBy: boolean;
   canEdit: boolean;
+  // Hiding "Powered by" is a paid feature (src/lib/billing/plans.ts).
+  canRemoveBranding: boolean;
+  billingHref: string;
 };
 
 const DEFAULT_COLOR = "#2563eb";
 
-export function BrandingForm({ slug, brandColor, logoUrl, hidePoweredBy, canEdit }: Props) {
+export function BrandingForm({
+  slug,
+  brandColor,
+  logoUrl,
+  hidePoweredBy,
+  canEdit,
+  canRemoveBranding,
+  billingHref,
+}: Props) {
   const [state, formAction] = useActionState(saveBranding, {} as BrandingState);
   // The color picker and the text box show the same value.
   const [color, setColor] = useState(brandColor ?? "");
@@ -70,10 +81,21 @@ export function BrandingForm({ slug, brandColor, logoUrl, hidePoweredBy, canEdit
           <input
             type="checkbox"
             name="hidePoweredBy"
-            defaultChecked={hidePoweredBy}
+            defaultChecked={hidePoweredBy && canRemoveBranding}
+            disabled={!canRemoveBranding}
             className="mt-1"
           />
-          <span>Hide the &ldquo;Powered by&rdquo; line at the bottom of the portal</span>
+          <span>
+            Hide the &ldquo;Powered by&rdquo; line at the bottom of the portal
+            {!canRemoveBranding && (
+              <>
+                {" "}
+                <a href={billingHref} className="text-link hover:underline">
+                  (Pro)
+                </a>
+              </>
+            )}
+          </span>
         </label>
       </fieldset>
       {state.error && <p className="text-sm text-danger">{state.error}</p>}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SimilarIdeas } from "@/components/portal/similar-ideas";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { POST_BODY_MAX, POST_TITLE_MAX, VOTER_NAME_MAX } from "@/lib/feedback-input";
@@ -17,6 +18,7 @@ export function EmbedIdeaForm({ organizationSlug, token, boards, onPosted }: Pro
   const [error, setError] = useState<string | null>(null);
   // What was typed, so a mistake doesn't clear the form.
   const [values, setValues] = useState<EmbedIdea | null>(null);
+  const [title, setTitle] = useState("");
 
   async function submit(formData: FormData) {
     const idea: EmbedIdea = {
@@ -61,8 +63,15 @@ export function EmbedIdeaForm({ organizationSlug, token, boards, onPosted }: Pro
         minLength={3}
         maxLength={POST_TITLE_MAX}
         defaultValue={values?.title}
+        onChange={(event) => setTitle(event.target.value)}
         placeholder="Short title, e.g. Export reports to CSV"
         aria-label="Title"
+      />
+      <SimilarIdeas
+        organizationSlug={organizationSlug}
+        title={title}
+        base={`/p/${organizationSlug}`}
+        newTab
       />
       <Textarea
         name="body"

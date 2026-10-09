@@ -1,5 +1,7 @@
 // The feedback product: boards, the ideas posted on them, votes and comments.
 // Every table carries organizationId (directly or through its post), and every query filters by it.
+
+import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
   index,
@@ -87,6 +89,8 @@ export const posts = pgTable(
   (table) => [
     index("posts_board_votes_idx").on(table.boardId, table.voteCount),
     index("posts_organization_status_idx").on(table.organizationId, table.status),
+    // Word search on titles, for "similar ideas" hints (src/lib/feedback/similar.ts).
+    index("posts_title_search_idx").using("gin", sql`to_tsvector('english', ${table.title})`),
   ],
 );
 

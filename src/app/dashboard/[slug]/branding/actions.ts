@@ -4,6 +4,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { organizations } from "@/db/schema";
+import { getPlanLimits } from "@/lib/billing";
 import { checkLogoUrl, normalizeDomain, normalizeHexColor } from "@/lib/branding";
 import { appHostName } from "@/lib/custom-domain";
 import { checkDomainDns, type DnsStatus } from "@/lib/portal/dns-check";
@@ -32,13 +33,13 @@ export async function saveBranding(
   if ("error" in logo) {
     return logo;
   }
+  const hidePoweredBy = formData.get("hidePoweredBy") === "on";
+  if (hidePoweredBy && !(await getPlanLimits(organization.id)).removeBranding) {
+    return { error: 'Hiding "Powered by" is a Pro feature. Upgrade under Billing.' };
+  }
   await db
     .update(organizations)
-    .set({
-      brandColor: color.color,
-      logoUrl: logo.url,
-      hidePoweredBy: formData.get("hidePoweredBy") === "on",
-    })
+    .set({ brandColor: color.color, logoUrl: logo.url, hidePoweredBy })
     .where(eq(organizations.id, organization.id));
   refresh(slug);
   return { saved: true };
@@ -56,10 +57,16 @@ export async function saveDomain(_previous: DomainState, formData: FormData): Pr
     return checked;
   }
   if (checked.domain) {
-    const taken = await db.$count(
-      organizations,
-      and(eq(organizations.customDomain, checked.domain), ne(organizations.id, organization.id)),
-    );
+    const [plan, taken] = await Promise.all([
+      getPlanLimits(organization.id),
+      db.$count(
+        organizations,
+        and(eq(organizations.customDomain, checked.domain), ne(organizations.id, organization.id)),
+      ),
+    ]);
+    if (!plan.customDomain) {
+      return { error: "Custom domains are a Pro feature. Upgrade under Billing." };
+    }
     if (taken > 0) {
       return { error: "Another workspace already uses that domain." };
     }

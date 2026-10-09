@@ -58,6 +58,7 @@ export default async function PortalHomePage({ params, searchParams }: Props) {
             organizationSlug={organization.slug}
             boards={boards}
             defaultBoardId={board?.id}
+            base={base === "/" ? "" : base}
           />
         </div>
       </details>

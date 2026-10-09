@@ -11,6 +11,8 @@ import { emailVoters } from "@/lib/notifications/voter-updates";
 import { refreshPortal } from "@/lib/portal/refresh";
 import { requirePermission } from "@/lib/session";
 import { isUuid } from "@/lib/uuid";
+import { emitWebhookEvents } from "@/lib/webhooks/dispatch";
+import { changelogRef, postRef } from "@/lib/webhooks/refs";
 
 function refresh(slug: string) {
   revalidatePath(`/dashboard/${slug}/changelog`, "layout");
@@ -79,7 +81,7 @@ export async function saveEntry(
   const linked =
     requestedIds.length > 0
       ? await db
-          .select({ id: posts.id, status: posts.status })
+          .select({ id: posts.id, title: posts.title, status: posts.status })
           .from(posts)
           .where(and(inArray(posts.id, requestedIds), eq(posts.organizationId, organization.id)))
       : [];
@@ -118,6 +120,24 @@ export async function saveEntry(
       : []),
   ]);
   refresh(slug);
+
+  emitWebhookEvents(organization, [
+    ...linked
+      .filter((post) => newlyShipped.includes(post.id))
+      .map((post) => ({
+        type: "post.status_changed" as const,
+        post: postRef(organization, { ...post, status: "complete" }),
+        previousStatus: post.status,
+      })),
+    ...(publish && !entry.publishedAt
+      ? [
+          {
+            type: "changelog.published" as const,
+            entry: changelogRef(organization, { id: entry.id, title: input.title }),
+          },
+        ]
+      : []),
+  ]);
 
   if (!publish) {
     return { saved: "Saved." };

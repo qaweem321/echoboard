@@ -1,4 +1,5 @@
-// Plan details used by the pricing section, billing page and member limits.
+// Plans for the workspaces using your feedback app: limits, price and features shown on the
+// pricing section and Billing page. Change the limits here; they're enforced on the server.
 // The real price is set in Polar or Stripe; keep `price` here in sync with it.
 export const plans = {
   free: {
@@ -6,22 +7,56 @@ export const plans = {
     price: "$0",
     description: "For small teams starting to collect feedback.",
     memberLimit: 3,
-    features: ["Feedback boards with voting", "Team roles and invitations", "Community support"],
+    boardLimit: 1,
+    // Custom domain, hiding "Powered by", and webhooks are Pro features.
+    customDomain: false,
+    removeBranding: false,
+    webhooks: false,
+    features: [
+      "Public portal, roadmap and changelog",
+      "Embeddable widget",
+      "Email updates to voters",
+    ],
   },
   pro: {
     name: "Pro",
     price: "$29/month",
-    description: "For growing products with a bigger team.",
+    description: "For growing products that want it fully on-brand.",
     memberLimit: Infinity,
-    features: ["Everything in Free", "Billing portal and invoices", "Priority email support"],
+    boardLimit: Infinity,
+    customDomain: true,
+    removeBranding: true,
+    webhooks: true,
+    features: [
+      "Everything in Free",
+      'Custom domain, no "Powered by"',
+      "Webhooks for Slack, Zapier and more",
+      "Priority email support",
+    ],
   },
-} as const;
+} as const satisfies Record<string, PlanDetails>;
+
+type PlanDetails = {
+  name: string;
+  price: string;
+  description: string;
+  memberLimit: number;
+  boardLimit: number;
+  customDomain: boolean;
+  removeBranding: boolean;
+  webhooks: boolean;
+  features: readonly string[];
+};
 
 export type PlanId = keyof typeof plans;
 export type Plan = (typeof plans)[PlanId];
 
-export function memberLimitLabel(memberLimit: number) {
-  return memberLimit === Infinity ? "Unlimited members" : `Up to ${memberLimit} members`;
+// "Up to 3 members", "1 board", "Unlimited boards".
+export function limitLabel(limit: number, singular: string, plural: string) {
+  if (limit === Infinity) {
+    return `Unlimited ${plural}`;
+  }
+  return limit === 1 ? `1 ${singular}` : `Up to ${limit} ${plural}`;
 }
 
 const PAID_STATUSES = ["active", "trialing"];

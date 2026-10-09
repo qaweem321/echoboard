@@ -11,6 +11,8 @@ import { findPortal } from "@/lib/portal/queries";
 import { refreshPortal } from "@/lib/portal/refresh";
 import { upsertVoter } from "@/lib/portal/voter";
 import { isVoterToken } from "@/lib/voter-token";
+import { emitWebhookEvent } from "@/lib/webhooks/dispatch";
+import { postRef } from "@/lib/webhooks/refs";
 
 // The widget's actions. Same rules as the portal, but the visitor is identified by the token
 // the widget keeps in its own storage instead of a cookie.
@@ -30,12 +32,12 @@ export async function embedVote(
   intent: "add" | "remove",
 ): Promise<{ ok: boolean }> {
   const { organization } = await requirePortal(organizationSlug, token);
-  const postId = await findWorkspacePost(organization.id, rawPostId);
-  if (!postId || !(await withinVisitorLimit("vote", organization.id))) {
+  const post = await findWorkspacePost(organization.id, rawPostId);
+  if (!post || !(await withinVisitorLimit("vote", organization.id))) {
     return { ok: false };
   }
   const voter = await upsertVoter(organization.id, token);
-  await castVote(postId, voter.id, intent === "remove" ? "remove" : "add");
+  await castVote(post.id, voter.id, intent === "remove" ? "remove" : "add");
   refreshPortal(organizationSlug);
   return { ok: true };
 }
@@ -78,5 +80,9 @@ export async function embedPostIdea(
     authorUserId: null,
   });
   refreshPortal(organizationSlug);
+  emitWebhookEvent(organization, {
+    type: "post.created",
+    post: postRef(organization, { id: postId, title: input.title, status: "open" }),
+  });
   return { postId };
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { atomic } from "@/db/atomic";
@@ -16,15 +17,17 @@ import { portalBase } from "@/lib/portal/links";
 import { getPortal, getTeamViewer } from "@/lib/portal/queries";
 import { refreshPortal } from "@/lib/portal/refresh";
 import { getOrCreateVoter } from "@/lib/portal/voter";
+import { emitWebhookEvent } from "@/lib/webhooks/dispatch";
+import { postRef } from "@/lib/webhooks/refs";
 
 // The workspace and a post in it. Both come from the browser, so both are checked.
 async function requirePost(organizationSlug: string, rawPostId: unknown) {
   const { organization } = await getPortal(organizationSlug);
-  const postId = await findWorkspacePost(organization.id, rawPostId);
-  if (!postId) {
+  const post = await findWorkspacePost(organization.id, rawPostId);
+  if (!post) {
     throw new Error("Post not found.");
   }
-  return { organization, postId };
+  return { organization, post, postId: post.id };
 }
 
 export async function setVote(formData: FormData) {
@@ -85,6 +88,10 @@ export async function createPost(
     authorUserId: teamViewer?.userId ?? null,
   });
   refreshPortal(organizationSlug);
+  emitWebhookEvent(organization, {
+    type: "post.created",
+    post: postRef(organization, { id: postId, title: input.title, status: "open" }),
+  });
   redirect(`${await portalBase(organizationSlug)}/posts/${postId}`);
 }
 
@@ -95,7 +102,10 @@ export async function addComment(
   formData: FormData,
 ): Promise<CommentFormState> {
   const organizationSlug = String(formData.get("org"));
-  const { organization, postId } = await requirePost(organizationSlug, formData.get("postId"));
+  const { organization, post, postId } = await requirePost(
+    organizationSlug,
+    formData.get("postId"),
+  );
   const rawBody = String(formData.get("body") ?? "");
 
   const input = checkCommentInput(rawBody);
@@ -112,9 +122,11 @@ export async function addComment(
 
   const teamViewer = await getTeamViewer(organization.id);
   const voter = teamViewer ? null : await getOrCreateVoter(organization.id, details);
+  const commentId = randomUUID();
 
   await atomic((tx) => [
     tx.insert(comments).values({
+      id: commentId,
       organizationId: organization.id,
       postId,
       body: input.body,
@@ -124,6 +136,15 @@ export async function addComment(
     tx.update(posts).set({ commentCount: recountComments }).where(eq(posts.id, postId)),
   ]);
   refreshPortal(organizationSlug);
+  emitWebhookEvent(organization, {
+    type: "comment.created",
+    post: postRef(organization, post),
+    comment: {
+      id: commentId,
+      body: input.body,
+      authorName: teamViewer?.name ?? voter?.name ?? details.name,
+    },
+  });
   // A new number each time, so the form knows to clear itself.
   return { sent: Date.now() };
 }

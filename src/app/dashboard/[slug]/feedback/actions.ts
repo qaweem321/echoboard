@@ -15,6 +15,8 @@ import { refreshPortal } from "@/lib/portal/refresh";
 import { isPostStatus } from "@/lib/post-status";
 import { requirePermission } from "@/lib/session";
 import { isUuid } from "@/lib/uuid";
+import { emitWebhookEvent } from "@/lib/webhooks/dispatch";
+import { postRef } from "@/lib/webhooks/refs";
 
 function refresh(slug: string, postId?: string) {
   revalidatePath(`/dashboard/${slug}/feedback`);
@@ -84,6 +86,13 @@ export async function updatePost(
     .set({ title: input.title, body: input.body, status, boardId, updatedAt: new Date() })
     .where(eq(posts.id, post.id));
   refresh(slug, post.id);
+  if (status !== post.status) {
+    emitWebhookEvent(organization, {
+      type: "post.status_changed",
+      post: postRef(organization, { id: post.id, title: input.title, status }),
+      previousStatus: post.status,
+    });
+  }
 
   // Only a real status change is news, and only when the team ticked "Email voters".
   const notify =

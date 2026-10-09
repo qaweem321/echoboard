@@ -16,6 +16,8 @@ const permissions = {
   "feedback:delete": ["owner", "admin"],
   // The changelog is public and can email voters, so owners and admins only.
   "changelog:manage": ["owner", "admin"],
+  // Webhooks send workspace data to other services, so owners and admins only.
+  "webhooks:manage": ["owner", "admin"],
 } satisfies Record<string, Role[]>;
 
 export type Permission = keyof typeof permissions;

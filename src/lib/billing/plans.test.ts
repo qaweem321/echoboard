@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { hasPaymentProblem, memberLimitLabel, planFromStatus } from "./plans";
+import { hasPaymentProblem, limitLabel, planFromStatus, plans } from "./plans";
 
 test("active and trialing subscriptions are Pro", () => {
   assert.equal(planFromStatus("active"), "pro");
@@ -13,9 +13,10 @@ test("everything else is Free", () => {
   }
 });
 
-test("describes member limits", () => {
-  assert.equal(memberLimitLabel(3), "Up to 3 members");
-  assert.equal(memberLimitLabel(Infinity), "Unlimited members");
+test("describes limits", () => {
+  assert.equal(limitLabel(3, "member", "members"), "Up to 3 members");
+  assert.equal(limitLabel(Infinity, "member", "members"), "Unlimited members");
+  assert.equal(limitLabel(1, "board", "boards"), "1 board");
 });
 
 test("failed payments are detected", () => {
@@ -25,4 +26,10 @@ test("failed payments are detected", () => {
   for (const status of ["active", "trialing", "canceled", null, undefined]) {
     assert.equal(hasPaymentProblem(status), false, String(status));
   }
+});
+
+test("Pro unlocks everything Free limits", () => {
+  assert.ok(plans.pro.boardLimit > plans.free.boardLimit);
+  assert.equal(plans.free.customDomain, false);
+  assert.equal(plans.pro.customDomain && plans.pro.removeBranding && plans.pro.webhooks, true);
 });

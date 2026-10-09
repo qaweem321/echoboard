@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { organizations, subscriptions } from "@/db/schema";
-import { type PlanId, planFromStatus } from "./plans";
+import { type PlanId, planFromStatus, plans } from "./plans";
 import { polarProvider } from "./polar";
 import { stripeProvider } from "./stripe";
 import type { BillingProvider } from "./types";
@@ -54,6 +54,11 @@ export async function getOrganizationSubscription(organizationId: string) {
 export async function getOrganizationPlan(organizationId: string): Promise<PlanId> {
   const subscription = await getOrganizationSubscription(organizationId);
   return planFromStatus(subscription?.status);
+}
+
+// The organization's plan with its limits, e.g. `(await getPlanLimits(id)).boardLimit`.
+export async function getPlanLimits(organizationId: string) {
+  return plans[await getOrganizationPlan(organizationId)];
 }
 
 // True while the organization would be charged again. Deleting it now would leave a

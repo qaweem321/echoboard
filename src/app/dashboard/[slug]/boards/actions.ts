@@ -4,6 +4,8 @@ import { and, eq, like, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { boards } from "@/db/schema";
+import { getPlanLimits } from "@/lib/billing";
+import { limitLabel } from "@/lib/billing/plans";
 import { checkBoardInput, uniqueSlug } from "@/lib/board";
 import { requirePermission } from "@/lib/session";
 import { slugify } from "@/lib/slug";
@@ -36,17 +38,29 @@ export async function createBoard(
     };
   }
 
-  // One query finds every slug that could clash ("bugs", "bugs-2", ...).
+  // Plan limit, the board count and every slug that could clash ("bugs", "bugs-2", ...),
+  // all at once.
   const base = slugify(checked.name).slice(0, 40);
-  const existing = await db
-    .select({ slug: boards.slug })
-    .from(boards)
-    .where(
-      and(
-        eq(boards.organizationId, organization.id),
-        or(eq(boards.slug, base), like(boards.slug, `${base}-%`)),
+  const [plan, boardCount, existing] = await Promise.all([
+    getPlanLimits(organization.id),
+    db.$count(boards, eq(boards.organizationId, organization.id)),
+    db
+      .select({ slug: boards.slug })
+      .from(boards)
+      .where(
+        and(
+          eq(boards.organizationId, organization.id),
+          or(eq(boards.slug, base), like(boards.slug, `${base}-%`)),
+        ),
       ),
-    );
+  ]);
+  if (boardCount >= plan.boardLimit) {
+    return {
+      error: `The ${plan.name} plan includes ${limitLabel(plan.boardLimit, "board", "boards").toLowerCase()}. Upgrade to Pro under Billing for unlimited boards.`,
+      name: checked.name,
+      description: checked.description,
+    };
+  }
 
   await db.insert(boards).values({
     organizationId: organization.id,

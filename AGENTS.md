@@ -54,6 +54,11 @@ Read the docs that ship with the package before using a Next.js API:
   `publicPortalUrl()` (`src/lib/portal/links.ts`). Never hard-code `/p/<slug>` in the portal.
 - Buttons and selected states use the `primary` color token (`bg-primary`,
   `text-primary-foreground`), so workspaces can rebrand them.
+- Plan limits: `src/lib/billing/plans.ts`; check them on the server with
+  `getPlanLimits(organizationId)` (`src/lib/billing`).
+- Webhooks: `src/lib/webhooks/` (`emitWebhookEvent(s)` after a change, `events.ts` for event
+  shapes and Slack/Discord formats, `url.ts` blocks private addresses). New event types go in
+  `events.ts` and the list on the Webhooks page.
 - `src/lib/notifications/`: voter emails. `emailVoters()` finds recipients, then sends after
   the response (`after()`), rate limited per workspace. Templates are plain functions with tests.
 - `src/lib/changelog/`: changelog input checks and queries. Dashboard in

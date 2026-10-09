@@ -27,17 +27,17 @@ export async function withinVisitorLimit(
   return (await rateLimit(`${action}:${organizationId}:${ip}`, max, seconds)).allowed;
 }
 
-// The post's ID if it exists in this workspace (IDs come from the browser), else null.
+// The post if it exists in this workspace (IDs come from the browser), else null.
 export async function findWorkspacePost(organizationId: string, postId: unknown) {
   if (!isUuid(postId)) {
     return null;
   }
   const [post] = await db
-    .select({ id: posts.id })
+    .select({ id: posts.id, title: posts.title, status: posts.status })
     .from(posts)
     .where(and(eq(posts.id, postId), eq(posts.organizationId, organizationId)))
     .limit(1);
-  return post?.id ?? null;
+  return post ?? null;
 }
 
 // Adds or removes a vote. Saying which (instead of toggling) means a repeated request

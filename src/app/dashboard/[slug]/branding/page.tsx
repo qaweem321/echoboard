@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getPlanLimits } from "@/lib/billing";
 import { appHostName } from "@/lib/custom-domain";
 import { can } from "@/lib/permissions";
 import { publicPortalUrl } from "@/lib/portal/links";
@@ -11,6 +12,7 @@ export const metadata: Metadata = { title: "Branding" };
 export default async function BrandingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { organization, role } = await requireMembership(slug);
+  const plan = await getPlanLimits(organization.id);
   const canEdit = can(role, "organization:update");
   const portalUrl = publicPortalUrl(organization);
 
@@ -40,6 +42,8 @@ export default async function BrandingPage({ params }: { params: Promise<{ slug:
           logoUrl={organization.logoUrl}
           hidePoweredBy={organization.hidePoweredBy}
           canEdit={canEdit}
+          canRemoveBranding={plan.removeBranding}
+          billingHref={`/dashboard/${slug}/billing`}
         />
       </section>
 
@@ -47,12 +51,21 @@ export default async function BrandingPage({ params }: { params: Promise<{ slug:
         <h2 className="mb-1 font-semibold">Custom domain</h2>
         <p className="mb-4 text-sm text-muted-foreground">
           Show your portal on your own address, like feedback.yourcompany.com.
+          {!plan.customDomain && (
+            <>
+              {" "}
+              <a href={`/dashboard/${slug}/billing`} className="text-link hover:underline">
+                Available on Pro.
+              </a>
+            </>
+          )}
         </p>
         <DomainForm
           slug={slug}
           customDomain={organization.customDomain}
           appHost={appHostName()}
-          canEdit={canEdit}
+          // Without Pro, a domain set earlier can still be removed.
+          canEdit={canEdit && (plan.customDomain || Boolean(organization.customDomain))}
         />
       </section>
     </div>

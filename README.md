@@ -24,6 +24,10 @@ Stripe billing.
 - **White-label per workspace:** brand color, logo, hide "Powered by", and a **custom domain**
   (feedback.theircompany.com) for the portal
 - Changelog (drafts, publish, link shipped ideas) with a public page per entry
+- **Similar-idea hints** while typing a new idea, to cut down on duplicates
+- **Webhooks** to Slack, Discord, Zapier, Make or any URL (signed, Standard Webhooks format)
+- **Plan limits** for your customers (boards, team size, custom domain, branding, webhooks),
+  set in one file and enforced on the server
 - **"It shipped" emails:** status changes and published changelog entries email everyone who
   voted and left an email, one email per person, with unsubscribe links
 - Spam protection: rate limits per visitor for votes, ideas and comments

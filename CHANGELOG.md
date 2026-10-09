@@ -71,6 +71,20 @@ Notable changes for buyers of Echoboard. The format follows
 - The widget panel uses the brand color, and the widget code includes it for the button.
 - "Powered by" links to your own site.
 
+### Plans, webhooks and similar ideas
+- Plan limits in one file (`src/lib/billing/plans.ts`), checked on the server: Free has 1 board
+  and 3 team members; Pro adds unlimited boards and members, a custom domain, hiding "Powered
+  by", and webhooks. Pricing cards list the limits. After a downgrade, the custom domain and
+  hidden branding switch off on their own.
+- Webhooks page (owners and admins): up to 5 endpoints, a "Send test" button, the last
+  delivery result, and the signing secret. Slack and Discord addresses get a readable message
+  in the channel; other addresses (Zapier, Make, your own app) get JSON events signed the
+  Standard Webhooks way: `post.created`, `comment.created`, `post.status_changed`,
+  `changelog.published`.
+- Webhooks can't be pointed at local or private network addresses.
+- "Similar ideas already shared" hints while typing a new idea, in the portal and the widget,
+  so people vote instead of posting duplicates.
+
 ### Foundation
 - Built on StarterKit 1.0.0: accounts, organizations with roles and invitations, Polar or Stripe
   billing, emails, security headers, rate limits and environment checks.
