@@ -7,8 +7,8 @@ Humans: start with README.md.
 
 Echoboard: a white-label feedback, roadmap and changelog app that buyers rebrand and run as
 their own SaaS. Next.js 16 App Router, React 19, TypeScript (strict), Tailwind 4, Drizzle ORM on
-Postgres (Neon), Better Auth, Polar or Stripe billing, Resend emails, Biome. Built on the
-StarterKit foundation.
+Postgres (Neon over HTTP, or any Postgres), Better Auth, Polar or Stripe billing (or none),
+Resend emails, Biome. Runs on Vercel or Docker.
 
 Two kinds of people use it:
 - **Team members** (Better Auth users with a membership) manage a workspace in `/dashboard`.
@@ -32,6 +32,9 @@ Read the docs that ship with the package before using a Next.js API:
 
 - `src/app/dashboard/[slug]/`: everything inside an organization. `src/app/dashboard/page.tsx`
   picks which organization to open.
+- `src/db/index.ts`: picks the driver (`src/db/driver.ts`): Neon HTTP or postgres.js. Write
+  several related changes with `atomic((tx) => [...])` (`src/db/atomic.ts`), never `db.batch`
+  or `db.transaction` directly, so both drivers work.
 - `src/db/schema/`: tables, one file per area (`auth`, `organizations`, `billing`, `feedback`).
   `posts.vote_count` and `comment_count` are stored counts: update them in the same
   `atomic()` transaction (`src/db/atomic.ts`) as the vote or comment they count.
@@ -74,7 +77,12 @@ Read the docs that ship with the package before using a Next.js API:
   one customer per email); Stripe has one customer per organization.
 - `src/lib/env.ts`: environment checks at startup (`src/instrumentation.ts`).
 - `src/lib/demo.ts`: `isDemoMode()` (`DEMO_MODE="true"`): no emails, no verification, banner.
-  Anything new that sends email needs a demo-mode path (see invitations).
+  Anything new that sends email, or makes the server contact addresses users type (webhooks,
+  domains), needs a demo-mode path (`DEMO_DISABLED_MESSAGE`).
+- Billing can be off (`BILLING_PROVIDER="none"`): use `effectivePlan()` / `getPlanLimits()`,
+  never `planFromStatus()` directly, for feature checks.
+- Self-hosting: `Dockerfile`, `docker-compose.yml`, `deploy/Caddyfile`. Scripts load `.env` only
+  if it exists (`src/db/load-env.ts`).
 - `src/proxy.ts`: custom-domain rewrites, logged-out redirect with `?next=`, last-used
   organization cookie.
 - `src/config/site.ts`: name, branding, `absoluteUrl()`.

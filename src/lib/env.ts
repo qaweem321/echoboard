@@ -63,8 +63,13 @@ export function checkEnv(env: Env = process.env) {
     if (days && !/^\d+$/.test(days)) {
       problems.push(`STRIPE_TRIAL_DAYS must be a whole number of days, not "${days}".`);
     }
-  } else {
-    problems.push(`BILLING_PROVIDER must be "polar" or "stripe", not "${provider}".`);
+  } else if (provider !== "none") {
+    problems.push(`BILLING_PROVIDER must be "polar", "stripe" or "none", not "${provider}".`);
+  }
+
+  const driver = env.DATABASE_DRIVER;
+  if (driver && driver !== "neon" && driver !== "postgres") {
+    problems.push(`DATABASE_DRIVER must be "neon" or "postgres" (or empty), not "${driver}".`);
   }
 
   return problems;

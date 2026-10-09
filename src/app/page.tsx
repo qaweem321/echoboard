@@ -5,7 +5,7 @@ import { Logo } from "@/components/logo";
 import { PlanCard } from "@/components/plan-card";
 import { ButtonLink, buttonClasses } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
-import { plans } from "@/lib/billing/plans";
+import { billingEnabled, plans } from "@/lib/billing/plans";
 
 const features = [
   {
@@ -17,8 +17,20 @@ const features = [
     description: "Customers vote in one click, so you hear from far more of them.",
   },
   {
-    title: "Roadmap and changelog",
-    description: "Show what's planned and what shipped, and tell every voter when it's done.",
+    title: "Public roadmap",
+    description: "Show what's planned, in progress and done, and let people vote on it.",
+  },
+  {
+    title: "Changelog and updates",
+    description: "Announce what shipped and email everyone who asked for it, automatically.",
+  },
+  {
+    title: "Widget for your app",
+    description: "One line of code adds a feedback button to your website or product.",
+  },
+  {
+    title: "Your brand, your domain",
+    description: "Your logo and colors, on feedback.yourcompany.com, with Slack and webhooks.",
   },
 ];
 
@@ -27,6 +39,8 @@ export default async function HomePage() {
   // If the session has expired, /dashboard sends the visitor to the login page.
   const loggedIn = getSessionCookie(await headers()) !== null;
   const startHref = loggedIn ? "/dashboard" : "/signup";
+  // Self-hosted installs without billing have no plans to show.
+  const showPricing = billingEnabled();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -34,9 +48,11 @@ export default async function HomePage() {
         <nav className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
           <Logo />
           <div className="flex items-center gap-4">
-            <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground">
-              Pricing
-            </a>
+            {showPricing && (
+              <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground">
+                Pricing
+              </a>
+            )}
             {loggedIn ? (
               <ButtonLink href="/dashboard">Go to dashboard</ButtonLink>
             ) : (
@@ -71,7 +87,7 @@ export default async function HomePage() {
         </section>
 
         <section id="features" className="bg-surface py-20">
-          <div className="mx-auto max-w-6xl px-6 grid gap-8 sm:grid-cols-3">
+          <div className="mx-auto max-w-6xl px-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
               <div
                 key={feature.title}
@@ -84,23 +100,25 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section id="pricing" className="py-20">
-          <div className="mx-auto max-w-4xl px-6">
-            <h2 className="text-3xl font-bold tracking-tight text-center">Simple pricing</h2>
-            <p className="mt-3 text-center text-muted-foreground">
-              Start free. Upgrade any time from your organization&apos;s Billing page.
-            </p>
-            <div className="mt-12 grid gap-8 sm:grid-cols-2">
-              {Object.entries(plans).map(([id, plan]) => (
-                <PlanCard key={id} plan={plan} highlighted={id === "pro"}>
-                  <ButtonLink href={startHref} variant={id === "pro" ? "primary" : "outline"}>
-                    {id === "pro" ? "Start with Pro" : "Start free"}
-                  </ButtonLink>
-                </PlanCard>
-              ))}
+        {showPricing && (
+          <section id="pricing" className="py-20">
+            <div className="mx-auto max-w-4xl px-6">
+              <h2 className="text-3xl font-bold tracking-tight text-center">Simple pricing</h2>
+              <p className="mt-3 text-center text-muted-foreground">
+                Start free. Upgrade any time from your organization&apos;s Billing page.
+              </p>
+              <div className="mt-12 grid gap-8 sm:grid-cols-2">
+                {Object.entries(plans).map(([id, plan]) => (
+                  <PlanCard key={id} plan={plan} highlighted={id === "pro"}>
+                    <ButtonLink href={startHref} variant={id === "pro" ? "primary" : "outline"}>
+                      {id === "pro" ? "Start with Pro" : "Start free"}
+                    </ButtonLink>
+                  </PlanCard>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </main>
 
       <footer className="border-t border-border py-6 text-sm text-subtle-foreground">

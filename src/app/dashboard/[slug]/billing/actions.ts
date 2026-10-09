@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { absoluteUrl } from "@/config/site";
 import { getBillingProvider, getOrganizationSubscription } from "@/lib/billing";
-import { hasPaymentProblem, planFromStatus } from "@/lib/billing/plans";
+import { billingEnabled, hasPaymentProblem, planFromStatus } from "@/lib/billing/plans";
 import { requirePermission } from "@/lib/session";
 
 export type BillingActionState = { error?: string };
@@ -16,6 +16,9 @@ export async function startCheckout(
 ): Promise<BillingActionState> {
   const slug = String(formData.get("slug"));
   const { user, organization } = await requirePermission(slug, "billing:manage");
+  if (!billingEnabled()) {
+    return { error: "Billing is turned off on this installation." };
+  }
 
   // Never start a second subscription for the same organization.
   const subscription = await getOrganizationSubscription(organization.id);
@@ -44,6 +47,9 @@ export async function openBillingPortal(
 ): Promise<BillingActionState> {
   const slug = String(formData.get("slug"));
   const { organization } = await requirePermission(slug, "billing:manage");
+  if (!billingEnabled()) {
+    return { error: "Billing is turned off on this installation." };
+  }
 
   let url: string;
   try {

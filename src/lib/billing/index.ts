@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { organizations, subscriptions } from "@/db/schema";
-import { type PlanId, planFromStatus, plans } from "./plans";
+import { billingEnabled, effectivePlan, type PlanId, planFromStatus, plans } from "./plans";
 import { polarProvider } from "./polar";
 import { stripeProvider } from "./stripe";
 import type { BillingProvider } from "./types";
@@ -14,7 +14,7 @@ export function getBillingProvider(): BillingProvider {
   if (provider === "stripe") {
     return stripeProvider;
   }
-  throw new Error(`Unknown BILLING_PROVIDER "${provider}". Use "polar" or "stripe".`);
+  throw new Error(`Billing is not available with BILLING_PROVIDER "${provider}".`);
 }
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -52,8 +52,11 @@ export async function getOrganizationSubscription(organizationId: string) {
 }
 
 export async function getOrganizationPlan(organizationId: string): Promise<PlanId> {
+  if (!billingEnabled()) {
+    return "pro";
+  }
   const subscription = await getOrganizationSubscription(organizationId);
-  return planFromStatus(subscription?.status);
+  return effectivePlan(subscription?.status);
 }
 
 // The organization's plan with its limits, e.g. `(await getPlanLimits(id)).boardLimit`.

@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.github
+.claude
+.env*
+!.env.example
+releases
+PLAN.md
+*.log
+*.tsbuildinfo
+coverage

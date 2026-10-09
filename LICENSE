@@ -3,64 +3,78 @@ Echoboard Commercial License
 Copyright (c) 2026 Qaweem Ahmad. All rights reserved.
 
 Qaweem Ahmad (the "Licensor") grants this license to the one person or one company that bought
-a Echoboard license from the Licensor, directly or through a store the Licensor sells on (such
+an Echoboard license from the Licensor, directly or through a store the Licensor sells on (such
 as Lemon Squeezy or Gumroad) (the "Licensee"). "The Software" means the Echoboard source code,
 documentation and other files supplied with it, including any updates the Licensor provides.
 
 A license bought by a person covers that person. A license bought by a company covers the
 company and its employees and contractors. The license cannot be transferred or resold.
 
-1. What you may do
+There are two license types. The receipt says which one the Licensee bought.
 
-   a. Use the Software to build an unlimited number of your own websites, applications and
-      products ("End Products"), including commercial and paid End Products.
-   b. Modify the Software in any way for your End Products.
-   c. Build End Products for your clients, and let your employees and contractors work on the
-      Software while building End Products for you.
-   d. Deploy and run End Products on any number of servers.
+1. Standard License
 
-2. What you may not do
+   The Licensee may:
 
-   a. Sell, sublicense, share, give away or publish the Software, or any substantial part of it,
-      on its own or as a template, starter kit, boilerplate, theme or code generator, whether
-      modified or not.
-   b. Use the Software to build a product that competes with the Software, such as another
-      starter kit or boilerplate.
-   c. Make the source code of the Software publicly available, for example in a public code
-      repository. End Products may be public; their source code may only be shared privately
-      with the people building them.
-   d. Remove this license or the copyright notice from the Software's files.
+   a. Run the Software, modified or not, as a feedback tool for the Licensee's own company and
+      products, with any number of workspaces, users and servers.
+   b. Set up and run the Software for the Licensee's clients, for each client's own use, as a
+      freelancer or agency. Each client may use it for their own company and products.
+   c. Modify the Software in any way and rebrand it (name, logo, colors, domains).
+   d. Let employees and contractors work on the Software for these purposes.
 
-3. Ownership
+   The Licensee may not offer the Software, or a product built from it, as a paid or free
+   hosted service that other companies sign up to and use for their own feedback (a "Hosted
+   Service"). That requires the Extended License.
 
-   The Licensor keeps ownership of the Software. The Licensee owns the original work they add
-   to their End Products.
+2. Extended License
 
-4. No warranty
+   Everything in the Standard License, and the Licensee may also run the Software, modified and
+   rebranded, as a Hosted Service: their own feedback, roadmap and changelog product that any
+   number of other companies sign up to and pay for, under the Licensee's own brand.
+   One Extended License covers one Hosted Service brand.
+
+3. What neither license allows
+
+   a. Selling, sublicensing, sharing, giving away or publishing the Software's source code, or
+      any substantial part of it, on its own or as a template, starter kit, boilerplate, script
+      or code generator, whether modified or not. Customers of a Hosted Service use it; they
+      don't receive its source code.
+   b. Making the source code of the Software publicly available, for example in a public code
+      repository.
+   c. Using the Software to build a product that competes with the Software itself, such as
+      another self-hosted feedback script for sale.
+   d. Removing this license or the copyright notice from the Software's files.
+
+4. Ownership
+
+   The Licensor keeps ownership of the Software. The Licensee owns the original work they add.
+
+5. No warranty
 
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
    INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-   PURPOSE AND NONINFRINGEMENT. You are responsible for reviewing, testing and securing your
-   End Products, including their legal pages, before using them in production.
+   PURPOSE AND NONINFRINGEMENT. The Licensee is responsible for reviewing, testing and securing
+   their installation, including its legal pages and how it handles their users' data, before
+   using it in production.
 
-5. Limitation of liability
+6. Limitation of liability
 
    IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
    IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. The Licensor's total liability is
    limited to the amount the Licensee paid for the Software.
 
-6. Termination
+7. Termination
 
    This license ends automatically if the Licensee breaks its terms. On termination the
-   Licensee must stop using and delete the Software. End Products already released under these
-   terms may keep running.
+   Licensee must stop using and delete the Software.
 
-7. Third-party software
+8. Third-party software
 
    The Software uses open-source packages (listed in package.json) that keep their own licenses.
 
-8. Governing law
+9. Governing law
 
    This license is governed by the laws of Pakistan. If any part of it can't be enforced, the
    rest still applies.

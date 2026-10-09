@@ -6,7 +6,11 @@ Notable changes for buyers of Echoboard. The format follows
 
 ## [Unreleased]
 
-### Added
+## [1.0.0] - 2026-10-09
+
+First public version.
+
+### Feedback boards
 - Feedback boards per workspace: add, rename and delete (owners and admins). A board keeps its
   link when renamed.
 - Database tables for posts (with statuses), votes, comments and portal voters.
@@ -84,6 +88,19 @@ Notable changes for buyers of Echoboard. The format follows
 - Webhooks can't be pointed at local or private network addresses.
 - "Similar ideas already shared" hints while typing a new idea, in the portal and the widget,
   so people vote instead of posting duplicates.
+
+### Self-hosting and shipping
+- Runs on any Postgres, not only Neon: a normal connection for every other database
+  (`DATABASE_DRIVER` to choose), with real transactions. Migrations work everywhere.
+- Docker: `Dockerfile` and `docker-compose.yml` (app, Postgres, migrations on start), and a
+  Caddy example with automatic HTTPS for every workspace's custom domain.
+- `BILLING_PROVIDER="none"` turns billing off: every workspace gets all features and the
+  pricing section is hidden.
+- Demo mode shows the sample workspace's login, hides the banner inside the widget, and turns
+  off webhooks and custom domains; `npm run db:reset-demo` restores the sample workspace.
+- Custom domains can only be saved once their DNS points to the app (no claiming other
+  companies' domains). Rate limits use the address added by the nearest proxy.
+- New landing page, README, Standard and Extended licenses.
 
 ### Foundation
 - Built on StarterKit 1.0.0: accounts, organizations with roles and invitations, Polar or Stripe

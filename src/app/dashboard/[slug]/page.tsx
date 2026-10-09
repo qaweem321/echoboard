@@ -4,7 +4,7 @@ import { PaymentProblemNotice } from "@/components/payment-problem-notice";
 import { db } from "@/db";
 import { boards, memberships, posts } from "@/db/schema";
 import { getOrganizationSubscription } from "@/lib/billing";
-import { hasPaymentProblem, planFromStatus, plans } from "@/lib/billing/plans";
+import { effectivePlan, hasPaymentProblem, plans } from "@/lib/billing/plans";
 import { endSentence } from "@/lib/format";
 import { can } from "@/lib/permissions";
 import { requireMembership } from "@/lib/session";
@@ -21,7 +21,7 @@ export default async function OverviewPage({ params }: { params: Promise<{ slug:
     db.$count(memberships, eq(memberships.organizationId, organization.id)),
     getOrganizationSubscription(organization.id),
   ]);
-  const planId = planFromStatus(subscription?.status);
+  const planId = effectivePlan(subscription?.status);
 
   const stats = [
     { label: "Boards", value: String(boardCount) },

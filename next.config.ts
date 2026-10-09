@@ -25,6 +25,8 @@ const noFraming = [
 const allowFraming = [{ key: "Content-Security-Policy", value: `frame-ancestors *; ${policy}` }];
 
 const nextConfig: NextConfig = {
+  // A self-contained server in .next/standalone, used by the Docker image (Vercel ignores it).
+  output: "standalone",
   // The "N" badge only shows during `npm run dev`. Keep it out of the sidebar.
   devIndicators: { position: "bottom-right" },
   // Don't advertise "X-Powered-By: Next.js" to attackers.

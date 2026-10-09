@@ -56,3 +56,20 @@ test("checks the Stripe variables when Stripe is chosen", () => {
 test("rejects an unknown billing provider", () => {
   assert.equal(checkEnv({ ...valid, BILLING_PROVIDER: "paypal" }).length, 1);
 });
+
+test("billing can be turned off without any payment keys", () => {
+  assert.deepEqual(
+    checkEnv({
+      DATABASE_URL: valid.DATABASE_URL,
+      BETTER_AUTH_SECRET: valid.BETTER_AUTH_SECRET,
+      BETTER_AUTH_URL: valid.BETTER_AUTH_URL,
+      BILLING_PROVIDER: "none",
+    }),
+    [],
+  );
+});
+
+test("checks DATABASE_DRIVER", () => {
+  assert.deepEqual(checkEnv({ ...valid, DATABASE_DRIVER: "postgres" }), []);
+  assert.equal(checkEnv({ ...valid, DATABASE_DRIVER: "mysql" }).length, 1);
+});

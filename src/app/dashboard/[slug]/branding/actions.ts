@@ -7,6 +7,7 @@ import { organizations } from "@/db/schema";
 import { getPlanLimits } from "@/lib/billing";
 import { checkLogoUrl, normalizeDomain, normalizeHexColor } from "@/lib/branding";
 import { appHostName } from "@/lib/custom-domain";
+import { DEMO_DISABLED_MESSAGE, isDemoMode } from "@/lib/demo";
 import { checkDomainDns, type DnsStatus } from "@/lib/portal/dns-check";
 import { refreshPortal } from "@/lib/portal/refresh";
 import { requirePermission } from "@/lib/session";
@@ -52,6 +53,10 @@ export async function saveDomain(_previous: DomainState, formData: FormData): Pr
   const { organization } = await requirePermission(slug, "organization:update");
   const host = appHostName();
 
+  // Anyone can sign up to a public demo; they mustn't be able to claim real domains.
+  if (isDemoMode()) {
+    return { error: DEMO_DISABLED_MESSAGE };
+  }
   const checked = normalizeDomain(formData.get("customDomain"), host);
   if ("error" in checked) {
     return checked;
@@ -69,6 +74,17 @@ export async function saveDomain(_previous: DomainState, formData: FormData): Pr
     }
     if (taken > 0) {
       return { error: "Another workspace already uses that domain." };
+    }
+    // Only whoever controls the domain's DNS can point it here, so this stops people claiming
+    // a domain that isn't theirs. Skipped while developing (test domains have no DNS).
+    if (process.env.NODE_ENV === "production") {
+      const dns = await checkDomainDns(checked.domain, host);
+      if (dns !== "ok") {
+        return {
+          dns,
+          error: `First add a CNAME record pointing ${checked.domain} to ${host}, then save again.`,
+        };
+      }
     }
   }
   await db

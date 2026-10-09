@@ -1,6 +1,6 @@
 {
   "name": "echoboard",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
@@ -18,7 +18,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx --env-file=.env src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "db:reset-demo": "tsx src/db/seed.ts --reset"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
@@ -26,6 +27,7 @@
     "better-auth": "^1.7.7",
     "drizzle-orm": "^0.45.3",
     "next": "^16.4.0",
+    "postgres": "^3.4.9",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "stripe": "^23.0.0"

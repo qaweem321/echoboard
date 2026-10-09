@@ -45,9 +45,17 @@ export function DomainForm({ slug, customDomain, appHost, canEdit }: Props) {
           At your domain provider, add a <strong>CNAME</strong> record for your domain pointing to{" "}
           <code className="text-foreground">{appHost}</code>.
         </li>
-        <li>Save the domain here. Leave the box empty to stop using it.</li>
+        <li>
+          When the record is in place (usually minutes, sometimes up to an hour), save the domain
+          here. Leave the box empty to stop using it.
+        </li>
       </ol>
       {state.error && <p className="text-sm text-danger">{state.error}</p>}
+      {state.error && state.dns && (
+        <p className={`text-sm ${dnsMessages[state.dns].className}`}>
+          {dnsMessages[state.dns].text}
+        </p>
+      )}
       {state.saved && (
         <p className="text-sm text-success">
           Saved.{" "}

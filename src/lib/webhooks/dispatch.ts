@@ -5,7 +5,7 @@ import { after } from "next/server";
 import { siteConfig } from "@/config/site";
 import { db } from "@/db";
 import { subscriptions, webhooks } from "@/db/schema";
-import { planFromStatus, plans } from "@/lib/billing/plans";
+import { effectivePlan, plans } from "@/lib/billing/plans";
 import { type WebhookEvent, type Workspace, webhookBody, webhookFormat } from "./events";
 import { signWebhook } from "./signature";
 import { isPrivateAddress } from "./url";
@@ -86,7 +86,7 @@ export function emitWebhookEvents(workspace: Workspace, events: WebhookEvent[]) 
         .from(webhooks)
         .leftJoin(subscriptions, eq(subscriptions.organizationId, webhooks.organizationId))
         .where(eq(webhooks.organizationId, workspace.id));
-      if (rows.length === 0 || !plans[planFromStatus(rows[0].status)].webhooks) {
+      if (rows.length === 0 || !plans[effectivePlan(rows[0].status)].webhooks) {
         return;
       }
       await Promise.all(

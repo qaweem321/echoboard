@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { clientIp } from "./client-ip";
 
-test("uses the first forwarded address", () => {
-  assert.equal(clientIp(new Headers({ "x-forwarded-for": " 1.2.3.4 , 10.0.0.1" })), "1.2.3.4");
+test("uses the address added by the nearest proxy", () => {
+  assert.equal(clientIp(new Headers({ "x-forwarded-for": "6.6.6.6, 1.2.3.4" })), "1.2.3.4");
+  assert.equal(clientIp(new Headers({ "x-forwarded-for": " 1.2.3.4 " })), "1.2.3.4");
 });
 
 test("falls back to x-real-ip, then unknown", () => {

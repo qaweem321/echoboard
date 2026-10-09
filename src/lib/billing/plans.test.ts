@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { hasPaymentProblem, limitLabel, planFromStatus, plans } from "./plans";
+import {
+  billingEnabled,
+  effectivePlan,
+  hasPaymentProblem,
+  limitLabel,
+  planFromStatus,
+  plans,
+} from "./plans";
 
 test("active and trialing subscriptions are Pro", () => {
   assert.equal(planFromStatus("active"), "pro");
@@ -32,4 +39,13 @@ test("Pro unlocks everything Free limits", () => {
   assert.ok(plans.pro.boardLimit > plans.free.boardLimit);
   assert.equal(plans.free.customDomain, false);
   assert.equal(plans.pro.customDomain && plans.pro.removeBranding && plans.pro.webhooks, true);
+});
+
+test("with billing off, every workspace gets Pro", () => {
+  assert.equal(billingEnabled({ BILLING_PROVIDER: "none" }), false);
+  assert.equal(billingEnabled({ BILLING_PROVIDER: "stripe" }), true);
+  assert.equal(billingEnabled({}), true);
+  assert.equal(effectivePlan(null, { BILLING_PROVIDER: "none" }), "pro");
+  assert.equal(effectivePlan(null, { BILLING_PROVIDER: "polar" }), "free");
+  assert.equal(effectivePlan("active", { BILLING_PROVIDER: "polar" }), "pro");
 });

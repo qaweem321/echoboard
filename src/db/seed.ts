@@ -1,6 +1,9 @@
+// Must come first: the database connection reads DATABASE_URL when it is imported.
+import "./load-env";
 import { createHash, randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 import { eq, inArray } from "drizzle-orm";
+import { demoLogin } from "../lib/demo";
 import { atomic } from "./atomic";
 import { db } from "./index";
 import {
@@ -16,17 +19,23 @@ import {
   votes,
 } from "./schema";
 
-// Every demo member logs in with this password (local development and the public demo only).
-export const DEMO_PASSWORD = "echoboard-demo";
+// `npm run db:seed -- --reset` (or `npm run db:reset-demo`) first deletes the sample workspace
+// and everything in it, so a public demo can be put back to a clean state, e.g. every night.
+const reset = process.argv.includes("--reset");
 
 const demoMembers = [
-  { name: "Olivia Owner", email: "owner@acme.test", role: "owner" },
+  { name: "Olivia Owner", email: demoLogin.email, role: "owner" },
   { name: "Adam Admin", email: "admin@acme.test", role: "admin" },
   { name: "Maya Member", email: "maya@acme.test", role: "member" },
   { name: "Sam Member", email: "sam@acme.test", role: "member" },
 ] as const;
 
 async function seed() {
+  if (reset) {
+    // Boards, ideas, votes, changelog, members and branding all go with it (cascade).
+    await db.delete(organizations).where(eq(organizations.slug, "acme"));
+    console.log("Deleted the sample workspace.");
+  }
   await db
     .insert(organizations)
     .values({ name: "Acme Inc.", slug: "acme" })
@@ -57,7 +66,7 @@ async function seed() {
     );
 
   // Password logins for the demo members, so the dashboard can be tried right away.
-  const passwordHash = await hashPassword(DEMO_PASSWORD);
+  const passwordHash = await hashPassword(demoLogin.password);
   await db
     .insert(accounts)
     .values(

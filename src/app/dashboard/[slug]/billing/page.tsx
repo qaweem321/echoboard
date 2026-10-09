@@ -3,7 +3,7 @@ import { DemoTestCard } from "@/components/demo-test-card";
 import { PaymentProblemNotice } from "@/components/payment-problem-notice";
 import { PlanCard } from "@/components/plan-card";
 import { getOrganizationSubscription } from "@/lib/billing";
-import { hasPaymentProblem, planFromStatus, plans } from "@/lib/billing/plans";
+import { billingEnabled, hasPaymentProblem, planFromStatus, plans } from "@/lib/billing/plans";
 import { isDemoMode } from "@/lib/demo";
 import { formatDate } from "@/lib/format";
 import { can } from "@/lib/permissions";
@@ -16,6 +16,16 @@ export const metadata: Metadata = { title: "Billing" };
 export default async function BillingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { organization, role } = await requireMembership(slug);
+  if (!billingEnabled()) {
+    return (
+      <div className="max-w-3xl">
+        <h1 className="text-2xl font-bold">Billing</h1>
+        <p className="mt-1 text-muted-foreground">
+          Billing is turned off on this installation, so every workspace has all features.
+        </p>
+      </div>
+    );
+  }
   const subscription = await getOrganizationSubscription(organization.id);
   const planId = planFromStatus(subscription?.status);
   const canManage = can(role, "billing:manage");

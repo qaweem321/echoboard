@@ -17,7 +17,7 @@ import {
   votes,
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { planFromStatus, plans } from "@/lib/billing/plans";
+import { effectivePlan, plans } from "@/lib/billing/plans";
 import { postSearchFilter } from "@/lib/feedback/filters";
 import { PORTAL_PAGE_SIZE, type PortalParams } from "@/lib/portal-params";
 import { listedStatuses } from "@/lib/post-status";
@@ -55,7 +55,7 @@ export async function findPortal(organizationSlug: string) {
     return null;
   }
   const { organization, subscriptionStatus } = rows[0];
-  const plan = plans[planFromStatus(subscriptionStatus)];
+  const plan = plans[effectivePlan(subscriptionStatus)];
   return {
     organization: {
       ...organization,

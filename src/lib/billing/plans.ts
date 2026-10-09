@@ -72,3 +72,16 @@ const PAYMENT_PROBLEM_STATUSES = ["past_due", "unpaid", "incomplete"];
 export function hasPaymentProblem(status: string | null | undefined) {
   return Boolean(status && PAYMENT_PROBLEM_STATUSES.includes(status));
 }
+
+type Env = Record<string, string | undefined>;
+
+// BILLING_PROVIDER="none" turns payments off, for example when a company self-hosts the app for
+// itself: then every workspace gets every feature.
+export function billingEnabled(env: Env = process.env) {
+  return env.BILLING_PROVIDER !== "none";
+}
+
+// The plan whose limits apply: the paid status, or Pro for everyone when billing is off.
+export function effectivePlan(status: string | null | undefined, env: Env = process.env): PlanId {
+  return billingEnabled(env) ? planFromStatus(status) : "pro";
+}

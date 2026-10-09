@@ -56,6 +56,10 @@ export default function PrivacyPage() {
         <li>Email delivery (Resend)</li>
         <li>Payments (Polar or Stripe)</li>
       </ul>
+      <p>
+        A workspace can also connect its own tools (for example Slack) with webhooks; feedback
+        posted on that workspace&apos;s portal is then sent to those tools.
+      </p>
 
       <h2>How long we keep it</h2>
       <p>

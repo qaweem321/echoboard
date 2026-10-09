@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { organizations, subscriptions } from "@/db/schema";
-import { planFromStatus, plans } from "@/lib/billing/plans";
+import { effectivePlan, plans } from "@/lib/billing/plans";
 
 // Remembers each domain's workspace for a minute, so the proxy doesn't query the database on
 // every request. A changed domain takes effect within a minute.
@@ -22,7 +22,7 @@ export async function workspaceForDomain(domain: string) {
     .where(eq(organizations.customDomain, domain))
     .limit(1);
   // Custom domains are a paid feature: a workspace that left Pro stops being served on it.
-  const slug = row && plans[planFromStatus(row.status)].customDomain ? row.slug : null;
+  const slug = row && plans[effectivePlan(row.status)].customDomain ? row.slug : null;
   if (cache.size >= CACHE_LIMIT) {
     cache.clear();
   }

@@ -8,3 +8,8 @@ export function isDemoMode(env: Env = process.env) {
 
 // Card details that work in Polar's sandbox and Stripe's test mode (no real money).
 export const demoTestCard = { number: "4242 4242 4242 4242", expiry: "12/34", cvc: "123" };
+
+// The sample workspace's owner login, created by `npm run db:seed`. Shown on the demo banner.
+export const demoLogin = { email: "owner@acme.test", password: "echoboard-demo" };
+
+export const DEMO_DISABLED_MESSAGE = "This is turned off in the live demo.";
