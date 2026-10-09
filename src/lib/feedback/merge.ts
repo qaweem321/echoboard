@@ -1,5 +1,5 @@
 import { eq, inArray, sql } from "drizzle-orm";
-import { db } from "@/db";
+import { atomic } from "@/db/atomic";
 import { comments, posts, votes } from "@/db/schema";
 import { recountComments, recountVotes } from "./counts";
 
@@ -9,11 +9,11 @@ import { recountComments, recountVotes } from "./counts";
 // The duplicate stays (hidden) so old links redirect to the main post.
 // Both posts must already be checked to belong to the same workspace.
 export async function mergePosts(duplicateId: string, mainId: string) {
-  await db.batch([
-    db
+  await atomic((tx) => [
+    tx
       .insert(votes)
       .select(
-        db
+        tx
           .select({
             id: sql<string>`gen_random_uuid()`.as("id"),
             postId: sql<string>`${mainId}::uuid`.as("post_id"),
@@ -24,13 +24,13 @@ export async function mergePosts(duplicateId: string, mainId: string) {
           .where(eq(votes.postId, duplicateId)),
       )
       .onConflictDoNothing(),
-    db.update(comments).set({ postId: mainId }).where(eq(comments.postId, duplicateId)),
-    db.update(posts).set({ mergedIntoId: mainId }).where(eq(posts.mergedIntoId, duplicateId)),
-    db
+    tx.update(comments).set({ postId: mainId }).where(eq(comments.postId, duplicateId)),
+    tx.update(posts).set({ mergedIntoId: mainId }).where(eq(posts.mergedIntoId, duplicateId)),
+    tx
       .update(posts)
       .set({ mergedIntoId: mainId, updatedAt: new Date() })
       .where(eq(posts.id, duplicateId)),
-    db
+    tx
       .update(posts)
       .set({ voteCount: recountVotes, commentCount: recountComments })
       .where(inArray(posts.id, [duplicateId, mainId])),

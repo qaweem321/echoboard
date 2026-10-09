@@ -18,6 +18,9 @@ Stripe billing.
 - Team inbox: filter, search and sort all feedback; change status, board and wording; merge
   duplicates (no double votes); delete posts and comments (owners and admins)
 - Statuses: open, under review, planned, in progress, complete, closed
+- **Embeddable widget:** one `<script>` tag adds a Feedback button and panel to any website
+  (vote, search and share ideas without an account); works where third-party cookies are
+  blocked
 - Changelog (drafts, publish, link shipped ideas) with a public page per entry
 - **"It shipped" emails:** status changes and published changelog entries email everyone who
   voted and left an email, one email per person, with unsubscribe links

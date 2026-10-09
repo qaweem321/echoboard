@@ -22,8 +22,8 @@ import { listedStatuses } from "@/lib/post-status";
 import { isUuid } from "@/lib/uuid";
 
 // A workspace's public portal: the organization and its boards, in one query.
-// Cached per request, so the layout, page and metadata share it.
-export const getPortal = cache(async (organizationSlug: string) => {
+// Returns null for an unknown workspace (for API routes); pages use getPortal().
+export async function findPortal(organizationSlug: string) {
   const rows = await db
     .select({
       organization: { id: organizations.id, name: organizations.name, slug: organizations.slug },
@@ -40,12 +40,22 @@ export const getPortal = cache(async (organizationSlug: string) => {
     .orderBy(asc(boards.createdAt), asc(boards.name));
 
   if (rows.length === 0) {
-    notFound();
+    return null;
   }
   return {
     organization: rows[0].organization,
     boards: rows.flatMap((row) => (row.board ? [row.board] : [])),
   };
+}
+
+// Like findPortal, but shows the 404 page for an unknown workspace. Cached per request, so the
+// layout, page and metadata share one query.
+export const getPortal = cache(async (organizationSlug: string) => {
+  const portal = await findPortal(organizationSlug);
+  if (!portal) {
+    notFound();
+  }
+  return portal;
 });
 
 export type Portal = Awaited<ReturnType<typeof getPortal>>;

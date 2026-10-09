@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 import { eq, inArray } from "drizzle-orm";
+import { atomic } from "./atomic";
 import { db } from "./index";
 import {
   accounts,
@@ -109,8 +110,8 @@ async function seedFeedback(organizationId: string) {
   const entryId = randomUUID();
   const shippedPostIndex = demoPosts.findIndex((post) => post.status === "complete");
 
-  await db.batch([
-    db.insert(boards).values([
+  await atomic((tx) => [
+    tx.insert(boards).values([
       {
         id: boardIds[0],
         organizationId,
@@ -120,14 +121,14 @@ async function seedFeedback(organizationId: string) {
       },
       { id: boardIds[1], organizationId, name: "Bugs", slug: "bugs", description: null },
     ]),
-    db.insert(voters).values(
+    tx.insert(voters).values(
       voterIds.map((id) => ({
         id,
         organizationId,
         tokenHash: createHash("sha256").update(randomUUID()).digest("hex"),
       })),
     ),
-    db.insert(posts).values(
+    tx.insert(posts).values(
       demoPosts.map((post, i) => ({
         id: postIds[i],
         organizationId,
@@ -137,21 +138,21 @@ async function seedFeedback(organizationId: string) {
         voteCount: post.votes,
       })),
     ),
-    db
+    tx
       .insert(votes)
       .values(
         demoPosts.flatMap((post, i) =>
           voterIds.slice(0, post.votes).map((voterId) => ({ postId: postIds[i], voterId })),
         ),
       ),
-    db.insert(changelogEntries).values({
+    tx.insert(changelogEntries).values({
       id: entryId,
       organizationId,
       title: "Two-factor login is here",
       body: "You can now protect your account with an authenticator app. Turn it on under Account > Security.",
       publishedAt: new Date(),
     }),
-    db.insert(changelogEntryPosts).values({ entryId, postId: postIds[shippedPostIndex] }),
+    tx.insert(changelogEntryPosts).values({ entryId, postId: postIds[shippedPostIndex] }),
   ]);
 }
 

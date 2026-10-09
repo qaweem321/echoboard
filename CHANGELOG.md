@@ -51,6 +51,16 @@ Notable changes for buyers of Echoboard. The format follows
 - Emails go out in batches of 100 after the page responds, and each workspace can send at most
   30 updates per hour.
 
+### Embeddable widget
+- One script tag adds a Feedback button to any website; it opens a panel where visitors vote,
+  search and share ideas without leaving the page or creating an account.
+- Options: button text, left or right corner, button color, or no button (open it from your
+  own link with `FeedbackWidget.open()`). Esc and the close button close the panel.
+- The panel works even where third-party cookies are blocked (Safari, Firefox).
+- New Widget page in the dashboard with the code to copy and a preview link.
+- Only the widget panel may be shown inside other websites; every other page still refuses to
+  be framed.
+
 ### Foundation
 - Built on StarterKit 1.0.0: accounts, organizations with roles and invitations, Polar or Stripe
   billing, emails, security headers, rate limits and environment checks.

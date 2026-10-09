@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
+import { atomic } from "@/db/atomic";
 import { memberships, organizations } from "@/db/schema";
 import { checkOrganizationName } from "@/lib/organization-name";
 import { requireUser } from "@/lib/session";
@@ -30,9 +31,9 @@ export async function createOrganization(
   }
 
   const organizationId = randomUUID();
-  await db.batch([
-    db.insert(organizations).values({ id: organizationId, name, slug }),
-    db.insert(memberships).values({ organizationId, userId: user.id, role: "owner" }),
+  await atomic((tx) => [
+    tx.insert(organizations).values({ id: organizationId, name, slug }),
+    tx.insert(memberships).values({ organizationId, userId: user.id, role: "owner" }),
   ]);
 
   redirect(`/dashboard/${slug}`);

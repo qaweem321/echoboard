@@ -34,7 +34,7 @@ Read the docs that ship with the package before using a Next.js API:
   picks which organization to open.
 - `src/db/schema/`: tables, one file per area (`auth`, `organizations`, `billing`, `feedback`).
   `posts.vote_count` and `comment_count` are stored counts: update them in the same
-  `db.batch` as the vote or comment they count.
+  `atomic()` transaction (`src/db/atomic.ts`) as the vote or comment they count.
 - `src/app/p/[org]/`: the public portal (no login). Data loading lives in `src/lib/portal/`
   (`getPortal`, `listPortalPosts`, `getPortalPost`, `getTeamViewer`); portal actions get the
   voter with `getOrCreateVoter()` and check every ID against the workspace (`findPost`).
@@ -43,6 +43,10 @@ Read the docs that ship with the package before using a Next.js API:
   `src/lib/feedback/` (`inbox.ts`, `merge.ts`, `counts.ts` for the recount expressions,
   `filters.ts` for search shared with the portal). After changing feedback, call
   `refreshPortal(slug)` so the portal and roadmap update.
+- Widget: `public/widget.js` (plain script for customers' sites) opens `/embed/<workspace>`
+  (`src/app/embed/[org]/`) in an iframe. The panel sends a voter token header (no cookies) to
+  `src/app/api/embed/[org]/posts` and token-taking actions. Visitor logic shared with the portal
+  lives in `src/lib/feedback/visitor.ts`. Only `/embed/*` may be framed (`next.config.ts`).
 - `src/lib/notifications/`: voter emails. `emailVoters()` finds recipients, then sends after
   the response (`after()`), rate limited per workspace. Templates are plain functions with tests.
 - `src/lib/changelog/`: changelog input checks and queries. Dashboard in

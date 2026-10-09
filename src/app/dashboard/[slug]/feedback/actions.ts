@@ -4,6 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
+import { atomic } from "@/db/atomic";
 import { boards, comments, posts } from "@/db/schema";
 import { recountComments } from "@/lib/feedback/counts";
 import { mergePosts } from "@/lib/feedback/merge";
@@ -141,8 +142,8 @@ export async function deleteComment(formData: FormData) {
   if (!isUuid(commentId)) {
     throw new Error("Invalid comment.");
   }
-  await db.batch([
-    db
+  await atomic((tx) => [
+    tx
       .delete(comments)
       .where(
         and(
@@ -151,7 +152,7 @@ export async function deleteComment(formData: FormData) {
           eq(comments.organizationId, organization.id),
         ),
       ),
-    db.update(posts).set({ commentCount: recountComments }).where(eq(posts.id, post.id)),
+    tx.update(posts).set({ commentCount: recountComments }).where(eq(posts.id, post.id)),
   ]);
   refresh(slug, post.id);
 }

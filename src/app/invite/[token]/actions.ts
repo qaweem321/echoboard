@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { db } from "@/db";
+import { atomic } from "@/db/atomic";
 import { invitations, memberships } from "@/db/schema";
 import { findValidInvitation } from "@/lib/invitations";
 import { requireUser } from "@/lib/session";
@@ -23,8 +23,8 @@ export async function acceptInvitation(
     };
   }
 
-  await db.batch([
-    db
+  await atomic((tx) => [
+    tx
       .insert(memberships)
       .values({
         organizationId: found.organization.id,
@@ -32,7 +32,7 @@ export async function acceptInvitation(
         role: found.invitation.role,
       })
       .onConflictDoNothing(),
-    db.delete(invitations).where(eq(invitations.id, found.invitation.id)),
+    tx.delete(invitations).where(eq(invitations.id, found.invitation.id)),
   ]);
 
   redirect(`/dashboard/${found.organization.slug}`);

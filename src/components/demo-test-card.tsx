@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { demoTestCard } from "@/lib/demo";
+import { useCopy } from "./use-copy";
 
 const messages = {
   idle: "",
@@ -15,18 +16,10 @@ const messages = {
 // provider, so we can't show these details there: copy them before leaving.
 export function DemoTestCard() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [status, setStatus] = useState<keyof typeof messages>("idle");
+  const { status, copy } = useCopy();
 
-  async function copyNumber() {
-    try {
-      await navigator.clipboard.writeText(demoTestCard.number.replaceAll(" ", ""));
-      setStatus("copied");
-      return;
-    } catch {
-      // Some browsers block the clipboard API. Fall back to selecting the number.
-    }
-    inputRef.current?.select();
-    setStatus(document.execCommand("copy") ? "copied" : "select");
+  function copyNumber() {
+    copy(demoTestCard.number.replaceAll(" ", ""), inputRef.current);
   }
 
   return (

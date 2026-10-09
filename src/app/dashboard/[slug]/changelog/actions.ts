@@ -4,6 +4,7 @@ import { and, eq, inArray, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
+import { atomic } from "@/db/atomic";
 import { changelogEntries, changelogEntryPosts, posts } from "@/db/schema";
 import { checkEntryInput } from "@/lib/changelog/input";
 import { emailVoters } from "@/lib/notifications/voter-updates";
@@ -89,8 +90,8 @@ export async function saveEntry(
     : [];
   const now = new Date();
 
-  await db.batch([
-    db
+  await atomic((tx) => [
+    tx
       .update(changelogEntries)
       .set({
         title: input.title,
@@ -99,17 +100,17 @@ export async function saveEntry(
         updatedAt: now,
       })
       .where(eq(changelogEntries.id, entry.id)),
-    db.delete(changelogEntryPosts).where(eq(changelogEntryPosts.entryId, entry.id)),
+    tx.delete(changelogEntryPosts).where(eq(changelogEntryPosts.entryId, entry.id)),
     ...(linkedIds.length > 0
       ? [
-          db
+          tx
             .insert(changelogEntryPosts)
             .values(linkedIds.map((postId) => ({ entryId: entry.id, postId }))),
         ]
       : []),
     ...(newlyShipped.length > 0
       ? [
-          db
+          tx
             .update(posts)
             .set({ status: "complete", updatedAt: now })
             .where(and(inArray(posts.id, newlyShipped), ne(posts.status, "complete"))),

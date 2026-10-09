@@ -14,7 +14,5 @@ export function hashVoterToken(organizationId: string, token: string) {
   return createHash("sha256").update(`${organizationId}:${token}`).digest("hex");
 }
 
-// Rejects cookie values we didn't create before hashing them (43 base64url characters).
-export function isVoterToken(value: string | undefined): value is string {
-  return typeof value === "string" && /^[\w-]{43}$/.test(value);
-}
+// Rejects values we didn't create before hashing them.
+export { isVoterToken } from "./voter-token-format";
