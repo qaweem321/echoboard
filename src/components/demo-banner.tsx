@@ -11,8 +11,9 @@ export async function DemoBanner() {
     <p className="border-b border-border bg-muted px-4 py-2 text-center text-sm text-muted-foreground">
       <strong className="text-foreground">Live demo:</strong> log in as {demoLogin.email} with
       password {demoLogin.password} to see the sample workspace, or sign up with any address (emails
-      are turned off). To try Pro, pay with test card {demoTestCard.number}, expiry{" "}
-      {demoTestCard.expiry} and CVC {demoTestCard.cvc}. No real money is charged.
+      are turned off). To try Pro, enter your own email at checkout and pay with test card{" "}
+      {demoTestCard.number}, expiry {demoTestCard.expiry} and CVC {demoTestCard.cvc}. No real money
+      is charged.
     </p>
   );
 }

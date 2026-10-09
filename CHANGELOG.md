@@ -103,6 +103,7 @@ First public version.
 - New landing page, README and a commercial license (own use, clients, or your own hosted service).
 
 ### Polish
+- Polar checkout no longer pre-fills reserved test emails like the demo's owner@acme.test, which Polar refuses at payment; the demo banner asks visitors to enter their own email.
 - New workspaces start with a "Feature requests" board, and the Overview shows a Get started guide until the first feedback arrives.
 - The app says "workspace" everywhere (it said "organization" in a few places).
 - Free plan allows 2 boards; the sample workspace fits the Free plan.

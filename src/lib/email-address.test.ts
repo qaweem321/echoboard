@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { isValidEmail } from "./email-address";
+import { isReservedEmailDomain, isValidEmail } from "./email-address";
 
 test("accepts normal email addresses", () => {
   assert.equal(isValidEmail("maya@acme.test"), true);
@@ -17,4 +17,13 @@ test("rejects huge inputs quickly", () => {
   const start = performance.now();
   assert.equal(isValidEmail(`a@${"a".repeat(50_000)}`), false);
   assert.ok(performance.now() - start < 50);
+});
+
+test("reserved test domains are recognised", () => {
+  for (const email of ["owner@acme.test", "a@example.com", "a@mail.example.org", "a@x.invalid"]) {
+    assert.equal(isReservedEmailDomain(email), true, email);
+  }
+  for (const email of ["a@gmail.com", "a@acme.com", "a@testing.io", "a@notexample.com"]) {
+    assert.equal(isReservedEmailDomain(email), false, email);
+  }
 });

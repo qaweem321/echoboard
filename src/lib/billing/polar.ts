@@ -3,6 +3,7 @@ import { createPolar } from "@polar-sh/sdk/2026-10";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
+import { isReservedEmailDomain } from "@/lib/email-address";
 import { requireEnv } from "@/lib/env";
 import type { BillingProvider } from "./types";
 
@@ -41,8 +42,11 @@ export const polarProvider: BillingProvider = {
         return_url: cancelUrl,
       });
 
+    // Polar accepts a reserved test address (the demo's owner@acme.test) when creating the
+    // checkout but refuses it at payment, so don't pre-fill those.
+    const prefill = isReservedEmailDomain(customerEmail) ? undefined : customerEmail;
     try {
-      return (await create(customerEmail)).url;
+      return (await create(prefill)).url;
     } catch (error) {
       // Polar refuses some addresses (e.g. reserved test domains like example.test).
       // Then the payer simply types their email on the checkout page.
