@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
@@ -10,7 +10,7 @@ import { recountComments } from "@/lib/feedback/counts";
 import { mergePosts } from "@/lib/feedback/merge";
 import { checkPostInput } from "@/lib/feedback-input";
 import { emailVoters, notifiableStatuses } from "@/lib/notifications/voter-updates";
-import type { Permission } from "@/lib/permissions";
+import { can, type Permission } from "@/lib/permissions";
 import { refreshPortal } from "@/lib/portal/refresh";
 import { isPostStatus } from "@/lib/post-status";
 import { requirePermission } from "@/lib/session";
@@ -29,7 +29,7 @@ function refresh(slug: string, postId?: string) {
 // Checks the permission and that the post (ID from the browser) belongs to this workspace.
 async function requirePost(formData: FormData, permission: Permission) {
   const slug = String(formData.get("slug"));
-  const { organization } = await requirePermission(slug, permission);
+  const { organization, role } = await requirePermission(slug, permission);
   const postId = formData.get("postId");
   if (!isUuid(postId)) {
     throw new Error("Invalid post.");
@@ -42,7 +42,7 @@ async function requirePost(formData: FormData, permission: Permission) {
   if (!post) {
     throw new Error("Post not found.");
   }
-  return { slug, organization, post };
+  return { slug, organization, role, post };
 }
 
 export type PostEditState = { error?: string; saved?: boolean; notice?: string };
@@ -60,7 +60,7 @@ export async function updatePost(
   _previous: PostEditState,
   formData: FormData,
 ): Promise<PostEditState> {
-  const { slug, organization, post } = await requirePost(formData, "feedback:manage");
+  const { slug, organization, role, post } = await requirePost(formData, "feedback:manage");
 
   const input = checkPostInput(formData.get("title"), formData.get("body"));
   if ("error" in input) {
@@ -94,9 +94,10 @@ export async function updatePost(
     });
   }
 
-  // Only a real status change is news, and only when the team ticked "Email voters".
+  // Only a real status change is news, and only when an owner or admin ticked "Email voters".
   const notify =
     formData.get("notify") === "on" &&
+    can(role, "voters:email") &&
     status !== post.status &&
     notifiableStatuses.includes(status);
   if (!notify) {
@@ -138,9 +139,17 @@ export async function mergePost(_previous: MergeState, formData: FormData): Prom
 }
 
 export async function deletePost(formData: FormData) {
-  const { slug, post } = await requirePost(formData, "feedback:delete");
-  // Votes and comments go with it (database cascade); merged duplicates are unlinked.
-  await db.delete(posts).where(eq(posts.id, post.id));
+  const { slug, organization, post } = await requirePost(formData, "feedback:delete");
+  // Votes and comments go with it (database cascade), and so do the duplicates merged into it:
+  // otherwise they'd reappear on the portal with their old votes.
+  await db
+    .delete(posts)
+    .where(
+      and(
+        eq(posts.organizationId, organization.id),
+        or(eq(posts.id, post.id), eq(posts.mergedIntoId, post.id)),
+      ),
+    );
   refresh(slug);
   redirect(`/dashboard/${slug}/feedback`);
 }

@@ -62,7 +62,9 @@ Read the docs that ship with the package before using a Next.js API:
 - Plan limits: `src/lib/billing/plans.ts`; check them on the server with
   `getPlanLimits(organizationId)` (`src/lib/billing`).
 - Webhooks: `src/lib/webhooks/` (`emitWebhookEvent(s)` after a change, `events.ts` for event
-  shapes and Slack/Discord formats, `url.ts` blocks private addresses). New event types go in
+  shapes and Slack/Discord formats, `url.ts` blocks private addresses). Send requests to
+  addresses users typed with `postJson()` (`post.ts`): it refuses private addresses at the
+  moment it connects. Never use `fetch` for those. New event types go in
   `events.ts` and the list on the Webhooks page.
 - `src/lib/notifications/`: voter emails. `emailVoters()` finds recipients, then sends after
   the response (`after()`), rate limited per workspace. Templates are plain functions with tests.
@@ -74,6 +76,7 @@ Read the docs that ship with the package before using a Next.js API:
   (see `portal-params.ts`, `inbox-params.ts`) and page with `<Pager>`.
 - `src/lib/session.ts`: `requireUser`, `requireMembership(slug)`, `requirePermission(slug, perm)`.
 - `src/lib/permissions.ts`: the only place roles and permissions are defined (`can(role, perm)`).
+  Anything that emails voters needs `voters:email`.
 - `src/lib/billing/`: provider interface (`types.ts`), Polar and Stripe, plans and statuses.
   Billing is per organization: Polar subscriptions carry `organizationId` in metadata (Polar has
   one customer per email); Stripe has one customer per organization.

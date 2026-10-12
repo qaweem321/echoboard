@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { headers } from "next/headers";
 import { db } from "@/db";
 import { atomic } from "@/db/atomic";
@@ -27,7 +27,8 @@ export async function withinVisitorLimit(
   return (await rateLimit(`${action}:${organizationId}:${ip}`, max, seconds)).allowed;
 }
 
-// The post if it exists in this workspace (IDs come from the browser), else null.
+// The post if it exists in this workspace (IDs come from the browser), else null. A post merged
+// into another counts as gone: a vote or comment there would be hidden from everyone.
 export async function findWorkspacePost(organizationId: string, postId: unknown) {
   if (!isUuid(postId)) {
     return null;
@@ -35,7 +36,13 @@ export async function findWorkspacePost(organizationId: string, postId: unknown)
   const [post] = await db
     .select({ id: posts.id, title: posts.title, status: posts.status })
     .from(posts)
-    .where(and(eq(posts.id, postId), eq(posts.organizationId, organizationId)))
+    .where(
+      and(
+        eq(posts.id, postId),
+        eq(posts.organizationId, organizationId),
+        isNull(posts.mergedIntoId),
+      ),
+    )
     .limit(1);
   return post ?? null;
 }

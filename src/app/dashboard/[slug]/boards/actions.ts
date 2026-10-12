@@ -7,8 +7,10 @@ import { boards } from "@/db/schema";
 import { getPlanLimits } from "@/lib/billing";
 import { limitLabel } from "@/lib/billing/plans";
 import { checkBoardInput, uniqueSlug } from "@/lib/board";
+import { refreshPortal } from "@/lib/portal/refresh";
 import { requirePermission } from "@/lib/session";
 import { slugify } from "@/lib/slug";
+import { isUuid } from "@/lib/uuid";
 
 // On error, the typed values are sent back so the form can show them again.
 export type BoardFormState = {
@@ -18,8 +20,19 @@ export type BoardFormState = {
   description?: string;
 };
 
-function boardsPath(slug: string) {
-  return `/dashboard/${slug}/boards`;
+// Boards show on the public portal too, so refresh both.
+function refresh(slug: string) {
+  revalidatePath(`/dashboard/${slug}/boards`);
+  refreshPortal(slug);
+}
+
+// The board ID comes from the browser: check its shape first (a clean error, not a database one).
+function boardIdFrom(formData: FormData) {
+  const boardId = formData.get("boardId");
+  if (!isUuid(boardId)) {
+    throw new Error("Board not found.");
+  }
+  return boardId;
 }
 
 export async function createBoard(
@@ -71,7 +84,7 @@ export async function createBoard(
     ),
     description: checked.description || null,
   });
-  revalidatePath(boardsPath(slug));
+  refresh(slug);
   return { saved: true };
 }
 
@@ -91,13 +104,8 @@ export async function updateBoard(
   await db
     .update(boards)
     .set({ name: checked.name, description: checked.description || null })
-    .where(
-      and(
-        eq(boards.id, String(formData.get("boardId"))),
-        eq(boards.organizationId, organization.id),
-      ),
-    );
-  revalidatePath(boardsPath(slug));
+    .where(and(eq(boards.id, boardIdFrom(formData)), eq(boards.organizationId, organization.id)));
+  refresh(slug);
   return { saved: true };
 }
 
@@ -108,11 +116,6 @@ export async function deleteBoard(formData: FormData) {
 
   await db
     .delete(boards)
-    .where(
-      and(
-        eq(boards.id, String(formData.get("boardId"))),
-        eq(boards.organizationId, organization.id),
-      ),
-    );
-  revalidatePath(boardsPath(slug));
+    .where(and(eq(boards.id, boardIdFrom(formData)), eq(boards.organizationId, organization.id)));
+  refresh(slug);
 }

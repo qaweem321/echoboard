@@ -2,14 +2,19 @@ import { EMBED_TOKEN_HEADER } from "@/lib/embed";
 import { findPortal, listPortalPosts } from "@/lib/portal/queries";
 import { voterHash } from "@/lib/portal/voter";
 import { parsePortalParams } from "@/lib/portal-params";
+import { withinSearchLimit } from "@/lib/search-limit";
 
 // Ideas for the embeddable widget, with the visitor's votes. The widget runs inside other
 // websites, where cookies are often blocked, so it identifies the visitor with a token header.
 export async function GET(request: Request, { params }: { params: Promise<{ org: string }> }) {
   const { org } = await params;
-  const portal = await findPortal(org);
+  // Independent, so they run together: the limit adds no wait.
+  const [portal, allowed] = await Promise.all([findPortal(org), withinSearchLimit(request, org)]);
   if (!portal) {
     return Response.json({ error: "Workspace not found." }, { status: 404 });
+  }
+  if (!allowed) {
+    return Response.json({ error: "Too many requests. Please wait a moment." }, { status: 429 });
   }
   const url = new URL(request.url);
   const options = parsePortalParams(Object.fromEntries(url.searchParams));

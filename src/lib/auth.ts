@@ -7,6 +7,16 @@ import * as schema from "@/db/schema";
 import { deleteOrganizations, planAccountDeletion } from "@/lib/account";
 import { isDemoMode } from "@/lib/demo";
 import { buttonEmailHtml, sendEmail } from "@/lib/email";
+import { cleanUserName } from "@/lib/user-name";
+
+// Names are checked here, on the server, for signup and for changes on the Account page.
+function checkedName(value: unknown) {
+  const checked = cleanUserName(value);
+  if ("error" in checked) {
+    throw new APIError("BAD_REQUEST", { message: checked.error });
+  }
+  return checked.name;
+}
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg", schema, usePlural: true }),
@@ -70,6 +80,17 @@ export const auth = betterAuth({
       } catch (error) {
         console.error(error);
       }
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => ({ data: { ...user, name: checkedName(user.name) } }),
+      },
+      update: {
+        before: async (user) =>
+          "name" in user ? { data: { ...user, name: checkedName(user.name) } } : undefined,
+      },
     },
   },
   // Limits login attempts and email sending per IP (on in production only).

@@ -59,8 +59,9 @@ export async function findPortal(organizationSlug: string) {
   return {
     organization: {
       ...organization,
-      // A workspace that left Pro shows "Powered by" again.
+      // A workspace that left Pro shows "Powered by" again, and isn't served on its own domain.
       hidePoweredBy: organization.hidePoweredBy && plan.removeBranding,
+      customDomain: plan.customDomain ? organization.customDomain : null,
     },
     boards: rows.flatMap((row) => (row.board ? [row.board] : [])),
   };
@@ -166,8 +167,9 @@ export async function listRoadmapPosts(organizationId: string, voterHash: string
     .limit(ROADMAP_LIMIT);
 }
 
-// One post with its comments. The two queries run in parallel.
-export async function getPortalPost(
+// One post with its comments. The two queries run in parallel. Cached for the request, so
+// the page title (generateMetadata) and the page share one load.
+export const getPortalPost = cache(async function getPortalPost(
   organizationId: string,
   postId: string,
   voterHash: string | null,
@@ -216,7 +218,7 @@ export async function getPortalPost(
     notFound();
   }
   return { post, comments: postComments };
-}
+});
 
 // A logged-in member of this workspace, so their posts and comments show as "Team".
 // Visitors without a login cookie skip the database entirely.

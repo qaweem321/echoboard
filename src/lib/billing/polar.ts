@@ -1,11 +1,8 @@
 import { PolarClientError } from "@polar-sh/sdk";
 import { createPolar } from "@polar-sh/sdk/2026-10";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { subscriptions } from "@/db/schema";
 import { isReservedEmailDomain } from "@/lib/email-address";
 import { requireEnv } from "@/lib/env";
-import type { BillingProvider } from "./types";
+import { type BillingProvider, PortalNotAllowedError } from "./types";
 
 // Polar keeps one customer per email, and one person can pay for several organizations.
 // So each subscription carries its organization in metadata (copied from the checkout),
@@ -57,18 +54,18 @@ export const polarProvider: BillingProvider = {
     }
   },
 
-  async createPortalUrl({ organizationId, returnUrl }) {
-    const [saved] = await db
-      .select({ customerId: subscriptions.providerCustomerId })
-      .from(subscriptions)
-      .where(eq(subscriptions.organizationId, organizationId));
-    const customerId = saved?.customerId ?? (await findSubscription(organizationId))?.customer_id;
-    if (!customerId) {
+  async createPortalUrl({ organizationId, returnUrl, userEmail }) {
+    const subscription = await findSubscription(organizationId);
+    if (!subscription) {
       throw new Error("This organization has no Polar subscription yet.");
+    }
+    const payer = subscription.customer.email?.toLowerCase();
+    if (payer && payer !== userEmail.toLowerCase()) {
+      throw new PortalNotAllowedError(payer);
     }
 
     const session = await getClient().customerSessions.create({
-      customer_id: customerId,
+      customer_id: subscription.customer_id,
       return_url: returnUrl,
     });
     return session.customer_portal_url;

@@ -26,7 +26,12 @@ function AuthorName({ name, byTeam }: { name: string | null; byTeam: boolean }) 
 export async function generateMetadata({ params }: Props) {
   const { org, postId } = await params;
   const { organization } = await getPortal(org);
-  const { post } = await getPortalPost(organization.id, postId, null);
+  // Same arguments as the page below, so the cached load is shared.
+  const { post } = await getPortalPost(
+    organization.id,
+    postId,
+    await currentVoterHash(organization.id),
+  );
   return { title: post.title };
 }
 

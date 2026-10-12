@@ -10,7 +10,8 @@ import { type PostEditState, updatePost } from "../actions";
 type Props = {
   slug: string;
   // How many voters left an email and would get a status update.
-  reachableVoters: number;
+  // null: this person may not email voters (members), so the option isn't shown.
+  reachableVoters: number | null;
   post: { id: string; title: string; body: string | null; status: PostStatus; boardId: string };
   boards: { id: string; name: string }[];
 };
@@ -74,14 +75,16 @@ export function EditPostForm({ slug, post, boards, reachableVoters }: Props) {
           className="min-h-32"
         />
       </div>
-      <label className="flex items-start gap-2 text-sm">
-        <input type="checkbox" name="notify" defaultChecked className="mt-1" />
-        <span>
-          Email voters when the status changes ({reachableVoters}{" "}
-          {reachableVoters === 1 ? "person" : "people"} left an email). Sent for Under review,
-          Planned, In progress and Complete.
-        </span>
-      </label>
+      {reachableVoters !== null && (
+        <label className="flex items-start gap-2 text-sm">
+          <input type="checkbox" name="notify" defaultChecked className="mt-1" />
+          <span>
+            Email voters when the status changes ({reachableVoters}{" "}
+            {reachableVoters === 1 ? "person" : "people"} left an email). Sent for Under review,
+            Planned, In progress and Complete.
+          </span>
+        </label>
+      )}
       {state.error && <p className="text-sm text-danger">{state.error}</p>}
       {state.saved && (
         <p className="text-sm text-success">Saved.{state.notice && ` ${state.notice}`}</p>

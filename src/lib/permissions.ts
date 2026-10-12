@@ -16,6 +16,9 @@ const permissions = {
   "feedback:delete": ["owner", "admin"],
   // The changelog is public and can email voters, so owners and admins only.
   "changelog:manage": ["owner", "admin"],
+  // Emailing voters (a post's status changed, a changelog entry) reaches many customers at once,
+  // so owners and admins only, the same as the changelog.
+  "voters:email": ["owner", "admin"],
   // Webhooks send workspace data to other services, so owners and admins only.
   "webhooks:manage": ["owner", "admin"],
 } satisfies Record<string, Role[]>;

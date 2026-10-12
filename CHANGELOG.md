@@ -98,11 +98,31 @@ First public version.
   pricing section is hidden.
 - Demo mode shows the sample workspace's login, hides the banner inside the widget, and turns
   off webhooks and custom domains; `npm run db:reset-demo` restores the sample workspace.
-- Custom domains can only be saved once their DNS points to the app (no claiming other
-  companies' domains). Rate limits use the address added by the nearest proxy.
+- Custom domains can only be saved once their DNS points to the app and a TXT record proves
+  the workspace owns the domain (shared hosting IPs are no proof). Rate limits use the address
+  added by the nearest proxy.
+- On a workspace's own domain, only its own portal, widget and widget data are served.
 - New landing page, README and a commercial license (own use, clients, or your own hosted service).
 
 ### Polish
+- Webhooks check the address they actually connect to, so a domain can't switch to a private
+  network address between the check and the request.
+- With Polar, only the person who pays can open the billing portal (it shows all of their
+  subscriptions); other owners are told who to ask.
+- A workspace (or an account) can't be deleted while its subscription would still charge the
+  card, also after a failed payment.
+- Deleting a post also deletes the duplicates merged into it; votes and comments can't land on
+  a merged duplicate.
+- Emailing voters about a status change is for owners and admins, like the changelog.
+- The widget's links go to the workspace's own domain when it has one.
+- Expired invitations don't count toward the member limit; names are checked on the server
+  (length, no line breaks); limits on public searches and on creating workspaces.
+- `docker-compose.yml` only exposes the app to the same machine (the proxy), so visitors can't
+  fake their address to get around rate limits.
+- `npm run db:seed` refuses a database that already has real accounts (unless
+  `DEMO_MODE="true"`); in demo mode "Forgot password" explains that emails are off.
+- Faster: post and changelog pages load once for the title and the page, invites check
+  everything at once, and an index speeds up "my workspaces".
 - Polar checkout no longer pre-fills reserved test emails like the demo's owner@acme.test, which Polar refuses at payment; the demo banner asks visitors to enter their own email.
 - New workspaces start with a "Feature requests" board, and the Overview shows a Get started guide until the first feedback arrives.
 - The app says "workspace" everywhere (it said "organization" in a few places).

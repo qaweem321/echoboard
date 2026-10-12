@@ -1,5 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
+import { Select } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { db } from "@/db";
 import { invitations, memberships, users } from "@/db/schema";
@@ -83,18 +84,18 @@ export default async function MembersPage({ params }: { params: Promise<{ slug: 
                   >
                     <input type="hidden" name="slug" value={slug} />
                     <input type="hidden" name="membershipId" value={member.id} />
-                    <select
+                    <Select
                       name="role"
                       aria-label={`Role for ${member.name}`}
                       defaultValue={member.role}
-                      className="rounded-md border border-input px-2 py-1 text-sm"
+                      className="px-2 py-1 text-sm"
                     >
                       {roles.map((role) => (
                         <option key={role} value={role}>
                           {role}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                     <SubmitButton
                       variant="link"
                       size="inline"

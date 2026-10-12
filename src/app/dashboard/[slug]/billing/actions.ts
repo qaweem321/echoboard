@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { absoluteUrl } from "@/config/site";
 import { getBillingProvider, getOrganizationSubscription } from "@/lib/billing";
 import { billingEnabled, hasPaymentProblem, planFromStatus } from "@/lib/billing/plans";
+import { PortalNotAllowedError } from "@/lib/billing/types";
 import { requirePermission } from "@/lib/session";
 
 export type BillingActionState = { error?: string };
@@ -46,7 +47,7 @@ export async function openBillingPortal(
   formData: FormData,
 ): Promise<BillingActionState> {
   const slug = String(formData.get("slug"));
-  const { organization } = await requirePermission(slug, "billing:manage");
+  const { user, organization } = await requirePermission(slug, "billing:manage");
   if (!billingEnabled()) {
     return { error: "Billing is turned off on this installation." };
   }
@@ -56,8 +57,14 @@ export async function openBillingPortal(
     url = await getBillingProvider().createPortalUrl({
       organizationId: organization.id,
       returnUrl: absoluteUrl(`/dashboard/${slug}/billing`),
+      userEmail: user.email,
     });
   } catch (error) {
+    if (error instanceof PortalNotAllowedError) {
+      return {
+        error: `Only ${error.payerEmail}, who pays for this subscription, can manage it. Ask them to open Manage subscription.`,
+      };
+    }
     console.error("Billing portal failed:", error);
     return { error: PROVIDER_ERROR };
   }

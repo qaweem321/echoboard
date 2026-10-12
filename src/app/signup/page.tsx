@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { getNextPath } from "@/lib/safe-redirect";
+import { NAME_MAX_LENGTH } from "@/lib/user-name";
 
 export default function SignUpPage() {
   const [error, setError] = useState("");
@@ -65,7 +66,13 @@ export default function SignUpPage() {
       <form method="post" onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
         <h1 className="text-2xl font-bold">Create your account</h1>
 
-        <Input name="name" required placeholder="Full name" autoComplete="name" />
+        <Input
+          name="name"
+          required
+          maxLength={NAME_MAX_LENGTH}
+          placeholder="Full name"
+          autoComplete="name"
+        />
         <Input name="email" type="email" required placeholder="Email" autoComplete="email" />
         <PasswordInput
           name="password"

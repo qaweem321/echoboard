@@ -2,7 +2,7 @@ import { and, count, eq, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { memberships, organizations } from "@/db/schema";
-import { hasRenewingSubscription } from "@/lib/billing";
+import { organizationsStillCharged } from "@/lib/billing";
 
 type AccountDeletionPlan = {
   // Reasons the account can't be deleted yet. Empty means it can.
@@ -29,20 +29,18 @@ export async function planAccountDeletion(userId: string): Promise<AccountDeleti
     .groupBy(organizations.id, organizations.name);
 
   const solo = owned.filter((organization) => organization.members === 1);
-  const renewing = await Promise.all(
-    solo.map((organization) => hasRenewingSubscription(organization.id)),
-  );
+  const charged = await organizationsStillCharged(solo.map((organization) => organization.id));
 
   const plan: AccountDeletionPlan = { blockers: [], soloOrganizations: [] };
-  solo.forEach((organization, index) => {
-    if (renewing[index]) {
+  for (const organization of solo) {
+    if (charged.has(organization.id)) {
       plan.blockers.push(
-        `${organization.name} has an active subscription. Cancel it under Billing > Manage subscription first.`,
+        `${organization.name} still has a subscription that would charge your card. Cancel it under Billing > Manage subscription first.`,
       );
     } else {
       plan.soloOrganizations.push({ id: organization.id, name: organization.name });
     }
-  });
+  }
   for (const organization of owned) {
     if (organization.members > 1 && organization.owners === 1) {
       plan.blockers.push(

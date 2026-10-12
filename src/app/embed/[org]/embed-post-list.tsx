@@ -19,12 +19,12 @@ type Post = {
   voted: boolean;
 };
 
-type Props = { organizationSlug: string; token: string };
+type Props = { organizationSlug: string; portalUrl: string; token: string };
 
 // Waits for a pause in typing before searching, so each key press isn't a request.
 const SEARCH_DELAY_MS = 300;
 
-export function EmbedPostList({ organizationSlug, token }: Props) {
+export function EmbedPostList({ organizationSlug, portalUrl, token }: Props) {
   const [sort, setSort] = useState<PortalSort>("top");
   const [typed, setTyped] = useState("");
   const [query, setQuery] = useState("");
@@ -131,7 +131,7 @@ export function EmbedPostList({ organizationSlug, token }: Props) {
               />
               <div className="min-w-0">
                 <a
-                  href={`/p/${organizationSlug}/posts/${post.id}`}
+                  href={`${portalUrl}/posts/${post.id}`}
                   target="_blank"
                   rel="noopener"
                   className="text-sm font-medium break-words hover:underline"

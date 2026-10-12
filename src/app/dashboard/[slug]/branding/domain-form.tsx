@@ -46,11 +46,31 @@ export function DomainForm({ slug, customDomain, appHost, canEdit }: Props) {
           <code className="text-foreground">{appHost}</code>.
         </li>
         <li>
-          When the record is in place (usually minutes, sometimes up to an hour), save the domain
-          here. Leave the box empty to stop using it.
+          Save the domain here. The first time, you&apos;re shown a <strong>TXT</strong> record that
+          proves the domain is yours: add it too, then save again.
+        </li>
+        <li>
+          DNS changes usually take minutes, sometimes up to an hour. Leave the box empty to stop
+          using the domain.
         </li>
       </ol>
       {state.error && <p className="text-sm text-danger">{state.error}</p>}
+      {state.verify && (
+        <dl className="space-y-1 rounded-lg border border-border p-3 text-sm">
+          <div>
+            <dt className="text-subtle-foreground">Type</dt>
+            <dd className="font-mono">TXT</dd>
+          </div>
+          <div>
+            <dt className="text-subtle-foreground">Name</dt>
+            <dd className="break-all font-mono">{state.verify.name}</dd>
+          </div>
+          <div>
+            <dt className="text-subtle-foreground">Value</dt>
+            <dd className="break-all font-mono">{state.verify.value}</dd>
+          </div>
+        </dl>
+      )}
       {state.error && state.dns && (
         <p className={`text-sm ${dnsMessages[state.dns].className}`}>
           {dnsMessages[state.dns].text}

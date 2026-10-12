@@ -1,5 +1,14 @@
 // Organizations (customer workspaces), their members and pending invitations.
-import { boolean, pgEnum, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { users } from "./auth";
 
 export const organizations = pgTable("organizations", {
@@ -32,7 +41,11 @@ export const memberships = pgTable(
     role: roleEnum("role").notNull().default("member"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [unique().on(table.organizationId, table.userId)],
+  (table) => [
+    unique().on(table.organizationId, table.userId),
+    // "Which workspaces is this user in?" runs on every dashboard page.
+    index("memberships_user_id_idx").on(table.userId),
+  ],
 );
 
 export const invitations = pgTable(

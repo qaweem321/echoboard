@@ -1,5 +1,6 @@
 import { and, desc, eq, isNotNull, isNull, ne, type SQL, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { db } from "@/db";
 import { qualified } from "@/db/qualified";
 import { changelogEntries, changelogEntryPosts, posts } from "@/db/schema";
@@ -49,7 +50,12 @@ export async function listEntries(organizationId: string, publishedOnly: boolean
 
 export type ChangelogEntry = Awaited<ReturnType<typeof listEntries>>["entries"][number];
 
-export async function getEntry(organizationId: string, entryId: string, publishedOnly: boolean) {
+// Cached for the request, so the page title and the page share one load.
+export const getEntry = cache(async function getEntry(
+  organizationId: string,
+  entryId: string,
+  publishedOnly: boolean,
+) {
   if (!isUuid(entryId)) {
     notFound();
   }
@@ -68,7 +74,7 @@ export async function getEntry(organizationId: string, entryId: string, publishe
     notFound();
   }
   return entry;
-}
+});
 
 const LINKABLE_LIMIT = 200;
 

@@ -4,17 +4,19 @@
 // Set by the proxy on custom-domain requests, so portal pages build links without "/p/<slug>".
 export const PORTAL_DOMAIN_HEADER = "x-portal-domain";
 
-// Shared files and endpoints that work the same on every domain.
+// Shared files that work the same on every domain.
 const SHARED_PATHS = [
   "/_next",
-  "/api",
-  "/embed",
   "/widget.js",
   "/unsubscribe",
   "/favicon.ico",
   "/icon.svg",
   "/robots.txt",
 ];
+
+// This workspace's own widget and its data. Other workspaces' widgets and the rest of /api
+// (login, billing webhooks...) stay on the app's own domain.
+const OWN_PATHS = (slug: string) => [`/p/${slug}`, `/embed/${slug}`, `/api/embed/${slug}`];
 
 function isUnder(pathname: string, prefix: string) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
@@ -27,7 +29,7 @@ export function customDomainPath(pathname: string, slug: string) {
   if (SHARED_PATHS.some((prefix) => isUnder(pathname, prefix))) {
     return null;
   }
-  if (isUnder(pathname, `/p/${slug}`)) {
+  if (OWN_PATHS(slug).some((prefix) => isUnder(pathname, prefix))) {
     return null;
   }
   return `/p/${slug}${pathname === "/" ? "" : pathname}`;

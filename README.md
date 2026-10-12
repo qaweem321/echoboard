@@ -138,7 +138,7 @@ customers to point a CNAME at `cname.vercel-dns.com` (Vercel shows the exact val
 
 ```bash
 cp .env.example .env            # fill it in; DATABASE_URL is set by docker-compose.yml
-docker compose up -d --build    # the app listens on port 3000
+docker compose up -d --build    # the app listens on 127.0.0.1:3000 (only this machine)
 docker compose run --rm migrate npm run db:seed   # optional: sample workspace
 ```
 
@@ -157,8 +157,9 @@ address the proxy adds (`x-forwarded-for`).
 ## Custom domains (for workspaces)
 
 On the **Branding** page, a Pro workspace enters `feedback.theircompany.com`. In production
-the domain can only be saved once its DNS already points to your app, so nobody can claim
-someone else's domain. The portal then works on that domain with clean links
+the domain can only be saved once its DNS points to your app **and** a TXT record proves it's
+theirs (the page shows the exact `_portal-verify.` record to add), so nobody can claim someone
+else's domain. The portal then works on that domain with clean links
 (`/roadmap`, `/posts/...`); nothing else of your app is reachable there. Update emails link to
 the workspace's domain. Changes take effect within a minute.
 
@@ -266,7 +267,7 @@ original state. Never turn demo mode on for a real app.
 | `npm run db:generate` | Create a migration after you change `src/db/schema/` |
 | `npm run db:migrate` | Apply migrations to the database in `DATABASE_URL` |
 | `npm run db:studio` | Browse your data in Drizzle Studio |
-| `npm run db:seed` | Add the sample workspace (safe to run again) |
+| `npm run db:seed` | Add the sample workspace (safe to run again; refuses a database that already has real accounts, unless `DEMO_MODE="true"`) |
 | `npm run db:reset-demo` | Delete the sample workspace and add it again, fresh |
 
 ## Project structure

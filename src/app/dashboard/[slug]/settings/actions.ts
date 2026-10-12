@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { memberships, organizations } from "@/db/schema";
-import { hasRenewingSubscription } from "@/lib/billing";
+import { organizationsStillCharged } from "@/lib/billing";
 import { checkOrganizationName } from "@/lib/organization-name";
 import { requireMembership, requirePermission } from "@/lib/session";
 
@@ -70,10 +70,10 @@ export async function deleteOrganization(
     return { error: `Type "${organization.name}" exactly to confirm.` };
   }
 
-  if (await hasRenewingSubscription(organization.id)) {
+  if ((await organizationsStillCharged([organization.id])).has(organization.id)) {
     return {
       error:
-        "This workspace has an active subscription. Cancel it under Billing > Manage subscription first, so you aren't charged again.",
+        "This workspace still has a subscription that would charge the card. Cancel it under Billing > Manage subscription first.",
     };
   }
 

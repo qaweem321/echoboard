@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { brandStyle } from "@/components/portal/brand-style";
+import { publicPortalUrl } from "@/lib/portal/links";
 import { getPortal } from "@/lib/portal/queries";
 import { EmbedApp } from "./embed-app";
 
@@ -14,6 +15,8 @@ export default async function EmbedPage({ params }: { params: Promise<{ org: str
     <div style={brandStyle(organization.brandColor)}>
       <EmbedApp
         organization={{ slug: organization.slug, name: organization.name }}
+        // On the workspace's own domain when it has one (white-label).
+        portalUrl={publicPortalUrl(organization).replace(/\/$/, "")}
         boards={boards.map((board) => ({ id: board.id, name: board.name }))}
       />
     </div>

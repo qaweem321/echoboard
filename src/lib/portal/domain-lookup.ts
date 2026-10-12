@@ -24,7 +24,12 @@ export async function workspaceForDomain(domain: string) {
   // Custom domains are a paid feature: a workspace that left Pro stops being served on it.
   const slug = row && plans[effectivePlan(row.status)].customDomain ? row.slug : null;
   if (cache.size >= CACHE_LIMIT) {
-    cache.clear();
+    // Drop the oldest entry (a Map keeps insertion order), so a flood of unknown host names
+    // can't keep emptying the cache for real domains.
+    const oldest = cache.keys().next().value;
+    if (oldest !== undefined) {
+      cache.delete(oldest);
+    }
   }
   cache.set(domain, { slug, expires: Date.now() + CACHE_MS });
   return slug;

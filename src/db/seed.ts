@@ -2,8 +2,8 @@
 import "./load-env";
 import { createHash, randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
-import { eq, inArray } from "drizzle-orm";
-import { demoLogin } from "../lib/demo";
+import { eq, inArray, notInArray } from "drizzle-orm";
+import { demoLogin, isDemoMode } from "../lib/demo";
 import { atomic } from "./atomic";
 import { db } from "./index";
 import {
@@ -29,7 +29,28 @@ const demoMembers = [
   { name: "Maya Member", email: "maya@acme.test", role: "member" },
 ] as const;
 
+// The sample logins have a published password, so never add them to a real installation:
+// only to a fresh database (no other accounts yet) or a public demo (DEMO_MODE="true").
+async function refuseRealInstall() {
+  if (isDemoMode()) {
+    return;
+  }
+  const others = await db.$count(
+    users,
+    notInArray(
+      users.email,
+      demoMembers.map((member) => member.email),
+    ),
+  );
+  if (others > 0) {
+    throw new Error(
+      'This database already has real accounts. The sample data adds logins with a published password, so it only runs on a fresh database or with DEMO_MODE="true".',
+    );
+  }
+}
+
 async function seed() {
+  await refuseRealInstall();
   if (reset) {
     // Boards, ideas, votes, changelog, members and branding all go with it (cascade).
     await db.delete(organizations).where(eq(organizations.slug, "acme"));

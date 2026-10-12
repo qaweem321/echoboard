@@ -73,7 +73,12 @@ export default async function FeedbackPostPage({ params }: Props) {
       </div>
 
       <Section title="Status and details">
-        <EditPostForm slug={slug} post={post} boards={boards} reachableVoters={reachableVoters} />
+        <EditPostForm
+          slug={slug}
+          post={post}
+          boards={boards}
+          reachableVoters={can(role, "voters:email") ? reachableVoters : null}
+        />
       </Section>
 
       <Section title={`Comments (${comments.length})`}>
@@ -158,7 +163,7 @@ export default async function FeedbackPostPage({ params }: Props) {
             <SubmitButton
               variant="danger-outline"
               pendingText="Deleting..."
-              confirm={`Delete "${post.title}"? This cannot be undone.`}
+              confirm={`Delete "${post.title}" and any duplicates merged into it? This cannot be undone.`}
             >
               Delete post
             </SubmitButton>

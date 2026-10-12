@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { lookup } from "node:dns/promises";
 import { eq } from "drizzle-orm";
 import { after } from "next/server";
 import { siteConfig } from "@/config/site";
@@ -7,8 +6,8 @@ import { db } from "@/db";
 import { subscriptions, webhooks } from "@/db/schema";
 import { effectivePlan, plans } from "@/lib/billing/plans";
 import { type WebhookEvent, type Workspace, webhookBody, webhookFormat } from "./events";
+import { postJson } from "./post";
 import { signWebhook } from "./signature";
-import { isPrivateAddress } from "./url";
 
 const TIMEOUT_MS = 5000;
 const ERROR_MAX = 300;
@@ -25,21 +24,14 @@ type Delivery = { status: number | null; error: string | null };
 async function deliver(endpoint: Endpoint, workspace: Workspace, event: WebhookEvent) {
   try {
     const url = new URL(endpoint.url);
-    // Check where the name points right before sending, so a domain can't be switched to a
-    // private address after it was saved.
-    if (!allowLocal()) {
-      const addresses = await lookup(url.hostname, { all: true });
-      if (addresses.some((entry) => isPrivateAddress(entry.address))) {
-        return { status: null, error: "The address points to a private network." };
-      }
-    }
     const sentAt = new Date();
     const body = webhookBody(webhookFormat(endpoint.url), workspace, event, sentAt);
     const id = `msg_${randomUUID()}`;
     const timestamp = Math.floor(sentAt.getTime() / 1000);
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
+    // postJson refuses private addresses at the moment it connects (see post.ts).
+    const status = await postJson(
+      url,
+      {
         "Content-Type": "application/json",
         "User-Agent": `${siteConfig.name}-Webhooks`,
         "webhook-id": id,
@@ -47,12 +39,12 @@ async function deliver(endpoint: Endpoint, workspace: Workspace, event: WebhookE
         "webhook-signature": signWebhook(endpoint.secret, id, timestamp, body),
       },
       body,
-      redirect: "manual",
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-    });
+      { timeoutMs: TIMEOUT_MS, allowLocal: allowLocal() },
+    );
+    const ok = status >= 200 && status < 300;
     return {
-      status: response.status,
-      error: response.ok ? null : `The endpoint answered ${response.status}.`,
+      status,
+      error: ok ? null : `The endpoint answered ${status}.`,
     } satisfies Delivery;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

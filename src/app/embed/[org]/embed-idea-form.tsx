@@ -9,12 +9,13 @@ import { type EmbedIdea, embedPostIdea } from "./actions";
 
 type Props = {
   organizationSlug: string;
+  portalUrl: string;
   token: string;
   boards: { id: string; name: string }[];
   onPosted: () => void;
 };
 
-export function EmbedIdeaForm({ organizationSlug, token, boards, onPosted }: Props) {
+export function EmbedIdeaForm({ organizationSlug, portalUrl, token, boards, onPosted }: Props) {
   const [error, setError] = useState<string | null>(null);
   // What was typed, so a mistake doesn't clear the form.
   const [values, setValues] = useState<EmbedIdea | null>(null);
@@ -67,12 +68,7 @@ export function EmbedIdeaForm({ organizationSlug, token, boards, onPosted }: Pro
         placeholder="Short title, e.g. Export reports to CSV"
         aria-label="Title"
       />
-      <SimilarIdeas
-        organizationSlug={organizationSlug}
-        title={title}
-        base={`/p/${organizationSlug}`}
-        newTab
-      />
+      <SimilarIdeas organizationSlug={organizationSlug} title={title} base={portalUrl} newTab />
       <Textarea
         name="body"
         maxLength={POST_BODY_MAX}

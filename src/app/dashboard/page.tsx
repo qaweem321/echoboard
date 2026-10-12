@@ -32,7 +32,7 @@ export default async function DashboardIndexPage() {
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-bold">Choose a workspace</h1>
         <p className="mt-1 text-muted-foreground">
-          Hi {user.name}! You belong to {organizations.length} organizations.
+          Hi {user.name}! You belong to {organizations.length} workspaces.
         </p>
         <ul className="mt-6 divide-y divide-border rounded-xl border border-border">
           {organizations.map((item) => (
@@ -48,7 +48,7 @@ export default async function DashboardIndexPage() {
           ))}
         </ul>
         <Link href="/onboarding" className="mt-4 inline-block text-sm text-link hover:underline">
-          + Create a new organization
+          + Create a new workspace
         </Link>
       </div>
     </main>

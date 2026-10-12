@@ -105,7 +105,7 @@ export default async function HomePage() {
             <div className="mx-auto max-w-4xl px-6">
               <h2 className="text-3xl font-bold tracking-tight text-center">Simple pricing</h2>
               <p className="mt-3 text-center text-muted-foreground">
-                Start free. Upgrade any time from your organization&apos;s Billing page.
+                Start free. Upgrade any time from your workspace&apos;s Billing page.
               </p>
               <div className="mt-12 grid gap-8 sm:grid-cols-2">
                 {Object.entries(plans).map(([id, plan]) => (

@@ -7,8 +7,15 @@ import { organizations } from "@/db/schema";
 import { getPlanLimits } from "@/lib/billing";
 import { checkLogoUrl, normalizeDomain, normalizeHexColor } from "@/lib/branding";
 import { appHostName } from "@/lib/custom-domain";
+import { isUniqueViolation } from "@/lib/db-errors";
 import { DEMO_DISABLED_MESSAGE, isDemoMode } from "@/lib/demo";
-import { checkDomainDns, type DnsStatus } from "@/lib/portal/dns-check";
+import {
+  checkDomainDns,
+  type DnsStatus,
+  type DomainVerification,
+  domainVerification,
+  hasVerificationRecord,
+} from "@/lib/portal/dns-check";
 import { refreshPortal } from "@/lib/portal/refresh";
 import { requirePermission } from "@/lib/session";
 
@@ -46,7 +53,13 @@ export async function saveBranding(
   return { saved: true };
 }
 
-export type DomainState = { error?: string; saved?: boolean; dns?: DnsStatus };
+export type DomainState = {
+  error?: string;
+  saved?: boolean;
+  dns?: DnsStatus;
+  // The TXT record still to add, shown while the domain isn't verified yet.
+  verify?: DomainVerification;
+};
 
 export async function saveDomain(_previous: DomainState, formData: FormData): Promise<DomainState> {
   const slug = String(formData.get("slug"));
@@ -75,25 +88,56 @@ export async function saveDomain(_previous: DomainState, formData: FormData): Pr
     if (taken > 0) {
       return { error: "Another workspace already uses that domain." };
     }
-    // Only whoever controls the domain's DNS can point it here, so this stops people claiming
-    // a domain that isn't theirs. Skipped while developing (test domains have no DNS).
+    // Only whoever controls the domain's DNS can add the TXT record, so nobody can claim a
+    // domain that isn't theirs. Skipped while developing (test domains have no DNS).
     if (process.env.NODE_ENV === "production") {
-      const dns = await checkDomainDns(checked.domain, host);
+      const verify = domainVerification(organization.id, checked.domain);
+      const [owned, dns] = await Promise.all([
+        hasVerificationRecord(verify),
+        checkDomainDns(checked.domain, host),
+      ]);
+      if (!owned) {
+        return {
+          dns,
+          verify,
+          error: "To show the domain is yours, add the TXT record below, then save again.",
+        };
+      }
       if (dns !== "ok") {
         return {
           dns,
           error: `First add a CNAME record pointing ${checked.domain} to ${host}, then save again.`,
         };
       }
+      return saveCustomDomain(slug, organization.id, checked.domain, dns);
     }
   }
-  await db
-    .update(organizations)
-    .set({ customDomain: checked.domain })
-    .where(eq(organizations.id, organization.id));
+  return saveCustomDomain(
+    slug,
+    organization.id,
+    checked.domain,
+    checked.domain ? await checkDomainDns(checked.domain, host) : undefined,
+  );
+}
+
+async function saveCustomDomain(
+  slug: string,
+  organizationId: string,
+  domain: string | null,
+  dns: DnsStatus | undefined,
+): Promise<DomainState> {
+  try {
+    await db
+      .update(organizations)
+      .set({ customDomain: domain })
+      .where(eq(organizations.id, organizationId));
+  } catch (error) {
+    // Another workspace saved the same domain at the same moment.
+    if (isUniqueViolation(error)) {
+      return { error: "Another workspace already uses that domain." };
+    }
+    throw error;
+  }
   refresh(slug);
-  return {
-    saved: true,
-    dns: checked.domain ? await checkDomainDns(checked.domain, host) : undefined,
-  };
+  return { saved: true, dns };
 }

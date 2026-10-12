@@ -4,6 +4,7 @@ import {
   billingEnabled,
   effectivePlan,
   hasPaymentProblem,
+  keepsCharging,
   limitLabel,
   periodNote,
   planFromStatus,
@@ -71,4 +72,14 @@ test("explains what happens when the period ends", () => {
     periodNote({ status: "active", cancelAtPeriodEnd: false, currentPeriodEnd: null }),
     null,
   );
+});
+
+test("a subscription keeps charging until it's cancelled, also after a failed payment", () => {
+  for (const status of ["active", "trialing", "past_due", "unpaid"]) {
+    assert.equal(keepsCharging({ status, cancelAtPeriodEnd: false }), true, status);
+    assert.equal(keepsCharging({ status, cancelAtPeriodEnd: true }), false, status);
+  }
+  for (const status of ["canceled", "incomplete", "incomplete_expired"]) {
+    assert.equal(keepsCharging({ status, cancelAtPeriodEnd: false }), false, status);
+  }
 });

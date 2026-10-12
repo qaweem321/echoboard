@@ -9,6 +9,9 @@ import { useVoterToken } from "./use-voter-token";
 
 type Props = {
   organization: { slug: string; name: string };
+  // The full portal address without a trailing slash, e.g. https://feedback.acme.com or
+  // https://app.example.com/p/acme.
+  portalUrl: string;
   boards: { id: string; name: string }[];
 };
 
@@ -19,7 +22,7 @@ function closePanel() {
   window.parent.postMessage({ type: WIDGET_CLOSE_MESSAGE }, "*");
 }
 
-export function EmbedApp({ organization, boards }: Props) {
+export function EmbedApp({ organization, portalUrl, boards }: Props) {
   const token = useVoterToken(organization.slug);
   const [view, setView] = useState<View>("ideas");
   const [notice, setNotice] = useState<string | null>(null);
@@ -102,7 +105,12 @@ export function EmbedApp({ organization, boards }: Props) {
         {!token ? (
           <p className="text-sm text-subtle-foreground">Loading...</p>
         ) : view === "ideas" ? (
-          <EmbedPostList key={listVersion} organizationSlug={organization.slug} token={token} />
+          <EmbedPostList
+            key={listVersion}
+            organizationSlug={organization.slug}
+            portalUrl={portalUrl}
+            token={token}
+          />
         ) : boards.length === 0 ? (
           <p className="text-sm text-subtle-foreground">
             {organization.name} isn&apos;t collecting ideas yet.
@@ -110,6 +118,7 @@ export function EmbedApp({ organization, boards }: Props) {
         ) : (
           <EmbedIdeaForm
             organizationSlug={organization.slug}
+            portalUrl={portalUrl}
             token={token}
             boards={boards}
             onPosted={() => {
@@ -122,12 +131,7 @@ export function EmbedApp({ organization, boards }: Props) {
       </div>
 
       <footer className="border-t border-border px-4 py-2 text-center text-xs">
-        <a
-          href={`/p/${organization.slug}`}
-          target="_blank"
-          rel="noopener"
-          className="text-link hover:underline"
-        >
+        <a href={portalUrl} target="_blank" rel="noopener" className="text-link hover:underline">
           Open the full feedback portal ↗
         </a>
       </footer>

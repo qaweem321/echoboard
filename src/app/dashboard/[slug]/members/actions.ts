@@ -1,7 +1,7 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, gt, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { absoluteUrl } from "@/config/site";
 import { db } from "@/db";
@@ -14,10 +14,15 @@ import { isValidEmail } from "@/lib/email-address";
 import { isRole } from "@/lib/permissions";
 import { rateLimit } from "@/lib/rate-limit";
 import { requirePermission } from "@/lib/session";
+import { isUuid } from "@/lib/uuid";
 
 const INVITE_DAYS = 7;
 
 async function findMembership(membershipId: string, organizationId: string) {
+  // IDs come from the browser: check the shape first for a clean error, not a database one.
+  if (!isUuid(membershipId)) {
+    throw new Error("Member not found.");
+  }
   const [membership] = await db
     .select()
     .from(memberships)
@@ -91,21 +96,28 @@ export async function inviteMember(
     return { error: "Only owners can invite owners.", email };
   }
 
-  const alreadyMember = await db
-    .select({ id: memberships.id })
-    .from(memberships)
-    .innerJoin(users, eq(memberships.userId, users.id))
-    .where(and(eq(memberships.organizationId, organization.id), eq(users.email, email)));
+  // Independent checks, run together. Expired invitations don't take a seat.
+  const [alreadyMember, planId, memberCount, otherInvites] = await Promise.all([
+    db
+      .select({ id: memberships.id })
+      .from(memberships)
+      .innerJoin(users, eq(memberships.userId, users.id))
+      .where(and(eq(memberships.organizationId, organization.id), eq(users.email, email))),
+    getOrganizationPlan(organization.id),
+    db.$count(memberships, eq(memberships.organizationId, organization.id)),
+    db.$count(
+      invitations,
+      and(
+        eq(invitations.organizationId, organization.id),
+        ne(invitations.email, email),
+        gt(invitations.expiresAt, new Date()),
+      ),
+    ),
+  ]);
   if (alreadyMember.length > 0) {
     return { error: "That person is already a member.", email };
   }
-
-  const plan = plans[await getOrganizationPlan(organization.id)];
-  const memberCount = await db.$count(memberships, eq(memberships.organizationId, organization.id));
-  const otherInvites = await db.$count(
-    invitations,
-    and(eq(invitations.organizationId, organization.id), ne(invitations.email, email)),
-  );
+  const plan = plans[planId];
   if (memberCount + otherInvites >= plan.memberLimit) {
     return {
       error: `The ${plan.name} plan allows up to ${plan.memberLimit} members (including pending invites). Upgrade to Pro for unlimited members.`,
@@ -170,14 +182,13 @@ export async function inviteMember(
 export async function revokeInvitation(formData: FormData) {
   const slug = String(formData.get("slug"));
   const { organization } = await requirePermission(slug, "member:invite");
+  const invitationId = formData.get("invitationId");
+  if (!isUuid(invitationId)) {
+    throw new Error("Invitation not found.");
+  }
 
   await db
     .delete(invitations)
-    .where(
-      and(
-        eq(invitations.id, String(formData.get("invitationId"))),
-        eq(invitations.organizationId, organization.id),
-      ),
-    );
+    .where(and(eq(invitations.id, invitationId), eq(invitations.organizationId, organization.id)));
   revalidatePath(`/dashboard/${slug}/members`);
 }
