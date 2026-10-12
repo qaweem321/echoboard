@@ -60,16 +60,34 @@ function trialDays() {
   return Number.isInteger(days) && days > 0 ? days : undefined;
 }
 
+// Before a new checkout: closes the organization's other open checkout pages, so paying in two
+// tabs can't start two subscriptions, and tells whether it ever had a subscription (the free
+// trial is for the first one only, not again after cancelling).
+async function prepareCheckout(stripe: Stripe, customerId: string) {
+  const [open, earlier] = await Promise.all([
+    stripe.checkout.sessions.list({ customer: customerId, status: "open", limit: 100 }),
+    stripe.subscriptions.list({ customer: customerId, status: "all", limit: 1 }),
+  ]);
+  await Promise.all(open.data.map((session) => stripe.checkout.sessions.expire(session.id)));
+  return { hadSubscription: earlier.data.length > 0 };
+}
+
 export const stripeProvider: BillingProvider = {
   name: "stripe",
 
   async createCheckoutUrl({ organizationId, customerEmail, successUrl, cancelUrl }) {
-    const session = await getStripeClient().checkout.sessions.create({
+    const stripe = getStripeClient();
+    const customer = await getOrCreateCustomerId(organizationId, customerEmail);
+    const { hadSubscription } = await prepareCheckout(stripe, customer);
+    const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      customer: await getOrCreateCustomerId(organizationId, customerEmail),
+      customer,
       client_reference_id: organizationId,
       line_items: [{ price: requireEnv("STRIPE_PRO_PRICE_ID"), quantity: 1 }],
-      subscription_data: { metadata: { organizationId }, trial_period_days: trialDays() },
+      subscription_data: {
+        metadata: { organizationId },
+        trial_period_days: hadSubscription ? undefined : trialDays(),
+      },
       success_url: successUrl,
       cancel_url: cancelUrl,
     });

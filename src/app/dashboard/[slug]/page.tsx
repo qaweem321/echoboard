@@ -38,8 +38,13 @@ export default async function OverviewPage({ params }: { params: Promise<{ slug:
         Welcome back. Here is what is happening in {endSentence(organization.name)}
       </p>
 
-      {hasPaymentProblem(subscription?.status) && (
-        <PaymentProblemNotice slug={slug} canManage={can(role, "billing:manage")} showBillingLink />
+      {subscription && hasPaymentProblem(subscription.status) && (
+        <PaymentProblemNotice
+          slug={slug}
+          status={subscription.status}
+          canManage={can(role, "billing:manage")}
+          showBillingLink
+        />
       )}
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

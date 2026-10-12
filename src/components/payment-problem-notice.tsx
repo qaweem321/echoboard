@@ -1,16 +1,17 @@
 import Link from "next/link";
+import { paymentProblemTitle } from "@/lib/billing/plans";
 
-type Props = { slug: string; canManage: boolean; showBillingLink?: boolean };
+type Props = { slug: string; status: string; canManage: boolean; showBillingLink?: boolean };
 
-// Shown when the organization's last payment failed. Pro features are paused until the
-// card is updated in the billing portal.
-export function PaymentProblemNotice({ slug, canManage, showBillingLink = false }: Props) {
+// Shown when the organization's subscription isn't being paid. Pro features are paused until
+// the card is updated in the billing portal.
+export function PaymentProblemNotice({ slug, status, canManage, showBillingLink = false }: Props) {
   return (
     <div
       role="alert"
       className="mt-6 rounded-lg border border-danger/40 bg-danger/10 p-4 text-sm text-foreground"
     >
-      <p className="font-medium text-danger">Your last payment failed.</p>
+      <p className="font-medium text-danger">{paymentProblemTitle(status)}</p>
       <p className="mt-1 text-muted-foreground">
         {canManage
           ? "Update your card under Manage subscription to keep using Pro."

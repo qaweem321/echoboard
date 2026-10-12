@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { atomic } from "@/db/atomic";
 import { boards, comments, posts } from "@/db/schema";
-import { recountComments } from "@/lib/feedback/counts";
+import { lockPosts, recountComments } from "@/lib/feedback/counts";
 import { mergePosts } from "@/lib/feedback/merge";
 import { checkPostInput } from "@/lib/feedback-input";
 import { emailVoters, notifiableStatuses } from "@/lib/notifications/voter-updates";
@@ -133,7 +133,9 @@ export async function mergePost(_previous: MergeState, formData: FormData): Prom
     return { error: "Please choose the post to merge into." };
   }
 
-  await mergePosts(post.id, target.id);
+  if (!(await mergePosts(post.id, target.id))) {
+    return { error: "One of these posts was merged a moment ago. Please reload the page." };
+  }
   refresh(slug, target.id);
   redirect(`/dashboard/${slug}/feedback/${target.id}`);
 }
@@ -161,6 +163,7 @@ export async function deleteComment(formData: FormData) {
     throw new Error("Invalid comment.");
   }
   await atomic((tx) => [
+    lockPosts(tx, [post.id]),
     tx
       .delete(comments)
       .where(

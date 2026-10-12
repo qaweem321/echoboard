@@ -19,13 +19,15 @@ export function getBillingProvider(): BillingProvider {
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// Copies the organization's subscription from the payment provider into the database, and
+// returns it (null when there's none).
 export async function syncSubscription(organizationId: string) {
   if (!UUID_PATTERN.test(organizationId)) {
-    return;
+    return null;
   }
   const exists = await db.$count(organizations, eq(organizations.id, organizationId));
   if (exists === 0) {
-    return;
+    return null;
   }
 
   const provider = getBillingProvider();
@@ -33,7 +35,7 @@ export async function syncSubscription(organizationId: string) {
 
   if (!subscription) {
     await db.delete(subscriptions).where(eq(subscriptions.organizationId, organizationId));
-    return;
+    return null;
   }
 
   const values = { ...subscription, provider: provider.name, updatedAt: new Date() };
@@ -41,6 +43,7 @@ export async function syncSubscription(organizationId: string) {
     .insert(subscriptions)
     .values({ organizationId, ...values })
     .onConflictDoUpdate({ target: subscriptions.organizationId, set: values });
+  return subscription;
 }
 
 export async function getOrganizationSubscription(organizationId: string) {

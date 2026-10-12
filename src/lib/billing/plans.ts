@@ -67,12 +67,24 @@ export function planFromStatus(status: string | null | undefined): PlanId {
   return status && PAID_STATUSES.includes(status) ? "pro" : "free";
 }
 
-// The subscription still exists but the last payment failed (e.g. an expired card).
-// The owner should update the card in the billing portal, not start a new subscription.
-const PAYMENT_PROBLEM_STATUSES = ["past_due", "unpaid", "incomplete"];
+// The subscription still exists but isn't being paid: the last payment failed (e.g. an expired
+// card), the first one didn't go through, or (Stripe) a trial ended without a card, which
+// pauses it. The owner should fix the card in the billing portal, not start a new subscription.
+const PAYMENT_PROBLEM_STATUSES = ["past_due", "unpaid", "incomplete", "paused"];
 
 export function hasPaymentProblem(status: string | null | undefined) {
   return Boolean(status && PAYMENT_PROBLEM_STATUSES.includes(status));
+}
+
+// The headline of the payment warning, matching what actually happened.
+export function paymentProblemTitle(status: string | null | undefined) {
+  if (status === "paused") {
+    return "Pro is paused: the free trial ended without a card.";
+  }
+  if (status === "incomplete") {
+    return "Your first payment didn't go through.";
+  }
+  return "Your last payment failed.";
 }
 
 type Env = Record<string, string | undefined>;
@@ -101,8 +113,10 @@ type PeriodInfo = { status: string; cancelAtPeriodEnd: boolean; currentPeriodEnd
 
 // What happens when the current period ends, shown on the Billing page.
 // A cancelled subscription keeps Pro until then, so say that clearly (also during a trial).
+// With a payment problem nothing renews until the card is fixed: the payment warning says so,
+// and no date is shown ("Renews on" next to "payment failed" would be wrong).
 export function periodNote({ status, cancelAtPeriodEnd, currentPeriodEnd }: PeriodInfo) {
-  if (!currentPeriodEnd) {
+  if (!currentPeriodEnd || hasPaymentProblem(status)) {
     return null;
   }
   const date = formatDate(currentPeriodEnd);

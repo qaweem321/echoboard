@@ -45,7 +45,7 @@ export const requireMembership = cache(async (slug: string) => {
   const user = await requireUser();
 
   const [membership] = await db
-    .select({ organization: organizations, role: memberships.role })
+    .select({ id: memberships.id, organization: organizations, role: memberships.role })
     .from(memberships)
     .innerJoin(organizations, eq(memberships.organizationId, organizations.id))
     .where(and(eq(organizations.slug, slug), eq(memberships.userId, user.id)))
@@ -54,7 +54,12 @@ export const requireMembership = cache(async (slug: string) => {
   if (!membership) {
     notFound();
   }
-  return { user, organization: membership.organization, role: membership.role };
+  return {
+    user,
+    membershipId: membership.id,
+    organization: membership.organization,
+    role: membership.role,
+  };
 });
 
 export async function requirePermission(slug: string, permission: Permission) {

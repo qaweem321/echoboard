@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import Link from "next/link";
 import { Pager } from "@/components/pager";
 import { PostRow } from "@/components/portal/post-row";
@@ -7,6 +8,7 @@ import { portalBase } from "@/lib/portal/links";
 import { getPortal, listPortalPosts } from "@/lib/portal/queries";
 import { currentVoterHash } from "@/lib/portal/voter";
 import { parsePortalParams, portalHref, portalSorts, SEARCH_MAX } from "@/lib/portal-params";
+import { withinSearchLimit } from "@/lib/search-limit";
 import { PostForm } from "./post-form";
 
 type Props = {
@@ -33,12 +35,17 @@ export default async function PortalHomePage({ params, searchParams }: Props) {
     );
   }
 
-  const { posts, hasMore } = await listPortalPosts(
-    organization.id,
-    board?.id ?? null,
-    options,
-    await currentVoterHash(organization.id),
-  );
+  // Searching runs a text search, so it's limited per visitor like the widget's search.
+  const searchBlocked =
+    Boolean(options.q) && !(await withinSearchLimit(await headers(), organization.slug));
+  const { posts, hasMore } = searchBlocked
+    ? { posts: [], hasMore: false }
+    : await listPortalPosts(
+        organization.id,
+        board?.id ?? null,
+        options,
+        await currentVoterHash(organization.id),
+      );
   const current = { ...options, board: board?.slug ?? null };
 
   return (
@@ -117,11 +124,19 @@ export default async function PortalHomePage({ params, searchParams }: Props) {
 
       {posts.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-10 text-center">
-          <p className="font-medium">{current.q ? "No matching feedback" : "No feedback yet"}</p>
+          <p className="font-medium">
+            {searchBlocked
+              ? "Too many searches just now"
+              : current.q
+                ? "No matching feedback"
+                : "No feedback yet"}
+          </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {current.q
-              ? "Try other words, or share it as a new idea."
-              : "Be the first to share an idea."}
+            {searchBlocked
+              ? "Please wait a minute, then search again."
+              : current.q
+                ? "Try other words, or share it as a new idea."
+                : "Be the first to share an idea."}
           </p>
         </div>
       ) : (

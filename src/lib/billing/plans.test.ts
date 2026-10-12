@@ -6,6 +6,7 @@ import {
   hasPaymentProblem,
   keepsCharging,
   limitLabel,
+  paymentProblemTitle,
   periodNote,
   planFromStatus,
   plans,
@@ -17,7 +18,16 @@ test("active and trialing subscriptions are Pro", () => {
 });
 
 test("everything else is Free", () => {
-  for (const status of ["canceled", "past_due", "incomplete", "unpaid", "", null, undefined]) {
+  for (const status of [
+    "canceled",
+    "past_due",
+    "incomplete",
+    "unpaid",
+    "paused",
+    "",
+    null,
+    undefined,
+  ]) {
     assert.equal(planFromStatus(status), "free", String(status));
   }
 });
@@ -29,7 +39,7 @@ test("describes limits", () => {
 });
 
 test("failed payments are detected", () => {
-  for (const status of ["past_due", "unpaid", "incomplete"]) {
+  for (const status of ["past_due", "unpaid", "incomplete", "paused"]) {
     assert.equal(hasPaymentProblem(status), true, status);
   }
   for (const status of ["active", "trialing", "canceled", null, undefined]) {
@@ -72,6 +82,25 @@ test("explains what happens when the period ends", () => {
     periodNote({ status: "active", cancelAtPeriodEnd: false, currentPeriodEnd: null }),
     null,
   );
+});
+
+test("the payment warning says what happened", () => {
+  assert.equal(paymentProblemTitle("past_due"), "Your last payment failed.");
+  assert.equal(paymentProblemTitle("unpaid"), "Your last payment failed.");
+  assert.equal(paymentProblemTitle("incomplete"), "Your first payment didn't go through.");
+  assert.equal(
+    paymentProblemTitle("paused"),
+    "Pro is paused: the free trial ended without a card.",
+  );
+});
+
+test("a failed payment never says it renews", () => {
+  const currentPeriodEnd = new Date("2026-10-14T12:00:00Z");
+  for (const status of ["past_due", "unpaid", "incomplete", "paused"]) {
+    for (const cancelAtPeriodEnd of [false, true]) {
+      assert.equal(periodNote({ status, cancelAtPeriodEnd, currentPeriodEnd }), null, status);
+    }
+  }
 });
 
 test("a subscription keeps charging until it's cancelled, also after a failed payment", () => {

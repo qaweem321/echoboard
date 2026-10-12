@@ -14,6 +14,11 @@ test("private and local addresses are detected", () => {
     "::ffff:10.0.0.1",
     "0.0.0.0",
     "100.64.0.1",
+    "::ffff:7f00:1",
+    "::ffff:a9fe:a9fe",
+    "::7f00:1",
+    "fe80::1",
+    "64:ff9b::7f00:1",
   ]) {
     assert.equal(isPrivateAddress(ip), true, ip);
   }
@@ -37,6 +42,21 @@ test("webhook URLs must be public https", () => {
     "",
   ]) {
     assert.ok("error" in checkWebhookUrl(bad, false), bad);
+  }
+});
+
+test("addresses rewritten by new URL() are still caught", () => {
+  for (const raw of [
+    "https://[::ffff:127.0.0.1]/x",
+    "https://[::ffff:169.254.169.254]/latest/meta-data",
+    "https://[::ffff:10.0.0.1]/x",
+    "https://[::127.0.0.1]/x",
+    "https://0x7f.1/x",
+    "https://2130706433/x",
+    "https://127.1/x",
+  ]) {
+    assert.ok("error" in checkWebhookUrl(raw, false), raw);
+    assert.equal(isPrivateAddress(new URL(raw).hostname), true, raw);
   }
 });
 

@@ -1,12 +1,13 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { memberships, organizations } from "@/db/schema";
+import { organizations } from "@/db/schema";
 import { organizationsStillCharged } from "@/lib/billing";
 import { checkOrganizationName } from "@/lib/organization-name";
+import { removeMembershipKeepingOwner } from "@/lib/owners";
 import { requireMembership, requirePermission } from "@/lib/session";
 
 export type RenameState = { error?: string; saved?: boolean };
@@ -38,24 +39,15 @@ export async function leaveOrganization(
   formData: FormData,
 ): Promise<DangerZoneState> {
   const slug = String(formData.get("slug"));
-  const { user, role, organization } = await requireMembership(slug);
+  const { user, membershipId, organization } = await requireMembership(slug);
 
-  if (role === "owner") {
-    const owners = await db.$count(
-      memberships,
-      and(eq(memberships.organizationId, organization.id), eq(memberships.role, "owner")),
-    );
-    if (owners <= 1) {
-      return {
-        error:
-          "You're the only owner. Make another member an owner first, or delete the workspace.",
-      };
-    }
+  // Refused (in the same step) when you're the last owner, also if another owner leaves or is
+  // removed at the same moment.
+  if (!(await removeMembershipKeepingOwner(organization.id, membershipId, user.id))) {
+    return {
+      error: "You're the only owner. Make another member an owner first, or delete the workspace.",
+    };
   }
-
-  await db
-    .delete(memberships)
-    .where(and(eq(memberships.organizationId, organization.id), eq(memberships.userId, user.id)));
   redirect("/dashboard");
 }
 

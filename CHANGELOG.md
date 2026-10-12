@@ -107,7 +107,19 @@ First public version.
 ### Polish
 - The "Log in" / "Sign up" links keep where you were going (for example an invitation).
 - Webhooks check the address they actually connect to, so a domain can't switch to a private
-  network address between the check and the request.
+  network address between the check and the request, and catch private addresses written in
+  IPv6 form (like `[::ffff:127.0.0.1]`).
+- Failed-payment warnings say what happened (also for Stripe's paused subscriptions), with no
+  "Renews on" next to them. Checkout asks Polar or Stripe for the live subscription first, and
+  Stripe closes the workspace's other open checkout pages, so there's never a second
+  subscription. Stripe's free trial is for a workspace's first subscription only.
+- A workspace always keeps an owner, also when two owners remove or demote each other at the
+  same moment.
+- Vote and comment counts stay exact when many arrive at once; two people merging two posts
+  into each other at the same moment can't create a redirect loop.
+- Stricter login limits (per IP address and per account); at most 30 invitation emails per
+  person per hour across workspaces; the portal search has the same limit as the widget's.
+- An error page also when the root layout fails (`global-error.tsx`).
 - With Polar, only the person who pays can open the billing portal (it shows all of their
   subscriptions); other owners are told who to ask.
 - A workspace (or an account) can't be deleted while its subscription would still charge the

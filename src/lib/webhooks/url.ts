@@ -1,41 +1,44 @@
-import { isIP } from "node:net";
+import { BlockList, isIP } from "node:net";
 
 const URL_MAX = 500;
 
-// Private, loopback and link-local addresses: a webhook must never make the server call its
-// own network (for example a cloud metadata service at 169.254.169.254).
+// Private, loopback, link-local, shared, multicast and reserved ranges. A webhook must never make
+// the server call its own network (for example a cloud metadata service at 169.254.169.254).
+// BlockList also matches IPv4 addresses wrapped in IPv6 (::ffff:7f00:1 is 127.0.0.1), which is
+// how `new URL()` rewrites a host like [::ffff:127.0.0.1].
+const blocked = new BlockList();
+for (const [network, prefix] of [
+  ["0.0.0.0", 8],
+  ["10.0.0.0", 8],
+  ["100.64.0.0", 10],
+  ["127.0.0.0", 8],
+  ["169.254.0.0", 16],
+  ["172.16.0.0", 12],
+  ["192.0.0.0", 24],
+  ["192.168.0.0", 16],
+  ["198.18.0.0", 15],
+  ["224.0.0.0", 3],
+] as const) {
+  blocked.addSubnet(network, prefix, "ipv4");
+}
+for (const [network, prefix] of [
+  ["::", 96], // unspecified, loopback and the old IPv4-compatible form (::7f00:1)
+  ["64:ff9b::", 96], // NAT64: an IPv4 address reached through a translator
+  ["2002::", 16], // 6to4: an IPv4 address inside an IPv6 one
+  ["fc00::", 7], // unique local
+  ["fe80::", 10], // link-local
+  ["ff00::", 8], // multicast
+] as const) {
+  blocked.addSubnet(network, prefix, "ipv6");
+}
+
 export function isPrivateAddress(address: string) {
   const ip = address.toLowerCase().replace(/^\[|\]$/g, "");
-  if (isIP(ip) === 4) {
-    const [a, b] = ip.split(".").map(Number);
-    return (
-      a === 0 ||
-      a === 10 ||
-      a === 127 ||
-      (a === 100 && b >= 64 && b <= 127) ||
-      (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && b === 168) ||
-      a >= 224
-    );
+  const version = isIP(ip);
+  if (version === 0) {
+    return false;
   }
-  if (isIP(ip) === 6) {
-    const mapped = ip.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-    if (mapped) {
-      return isPrivateAddress(mapped[1]);
-    }
-    return (
-      ip === "::" ||
-      ip === "::1" ||
-      ip.startsWith("fc") ||
-      ip.startsWith("fd") ||
-      ip.startsWith("fe8") ||
-      ip.startsWith("fe9") ||
-      ip.startsWith("fea") ||
-      ip.startsWith("feb")
-    );
-  }
-  return false;
+  return blocked.check(ip, version === 4 ? "ipv4" : "ipv6");
 }
 
 // Webhook URLs must be https and public. `allowLocal` lets developers test with

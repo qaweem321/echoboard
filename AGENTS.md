@@ -77,6 +77,8 @@ Read the docs that ship with the package before using a Next.js API:
 - `src/lib/session.ts`: `requireUser`, `requireMembership(slug)`, `requirePermission(slug, perm)`.
 - `src/lib/permissions.ts`: the only place roles and permissions are defined (`can(role, perm)`).
   Anything that emails voters needs `voters:email`.
+- `src/lib/owners.ts`: remove members or change roles only through `removeMembershipKeepingOwner`
+  / `changeRoleKeepingOwner`, so an organization can never lose its last owner.
 - `src/lib/billing/`: provider interface (`types.ts`), Polar and Stripe, plans and statuses.
   Billing is per organization: Polar subscriptions carry `organizationId` in metadata (Polar has
   one customer per email); Stripe has one customer per organization.

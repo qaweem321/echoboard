@@ -46,7 +46,9 @@ export default async function BillingPage({ params }: { params: Promise<{ slug: 
         {note && ` ${note}`}
       </p>
 
-      {paymentProblem && <PaymentProblemNotice slug={slug} canManage={canManage} />}
+      {paymentProblem && subscription && (
+        <PaymentProblemNotice slug={slug} status={subscription.status} canManage={canManage} />
+      )}
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2">
         <PlanCard

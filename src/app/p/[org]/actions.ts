@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { atomic } from "@/db/atomic";
 import { comments, posts } from "@/db/schema";
-import { recountComments } from "@/lib/feedback/counts";
+import { lockPosts, recountComments } from "@/lib/feedback/counts";
 import {
   castVote,
   findWorkspacePost,
@@ -125,6 +125,7 @@ export async function addComment(
   const commentId = randomUUID();
 
   await atomic((tx) => [
+    lockPosts(tx, [postId]),
     tx.insert(comments).values({
       id: commentId,
       organizationId: organization.id,

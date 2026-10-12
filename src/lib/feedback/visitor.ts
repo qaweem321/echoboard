@@ -7,7 +7,7 @@ import { posts, votes } from "@/db/schema";
 import { clientIp } from "@/lib/client-ip";
 import { rateLimit } from "@/lib/rate-limit";
 import { isUuid } from "@/lib/uuid";
-import { recountVotes } from "./counts";
+import { lockPosts, recountVotes } from "./counts";
 
 // What portal and widget visitors can do. Callers check the workspace and the voter first.
 
@@ -51,6 +51,7 @@ export async function findWorkspacePost(organizationId: string, postId: unknown)
 // changes nothing. The stored count is recounted in the same transaction.
 export async function castVote(postId: string, voterId: string, intent: "add" | "remove") {
   await atomic((tx) => [
+    lockPosts(tx, [postId]),
     intent === "remove"
       ? tx.delete(votes).where(and(eq(votes.postId, postId), eq(votes.voterId, voterId)))
       : tx.insert(votes).values({ postId, voterId }).onConflictDoNothing(),

@@ -9,7 +9,10 @@ import { withinSearchLimit } from "@/lib/search-limit";
 export async function GET(request: Request, { params }: { params: Promise<{ org: string }> }) {
   const { org } = await params;
   // Independent, so they run together: the limit adds no wait.
-  const [portal, allowed] = await Promise.all([findPortal(org), withinSearchLimit(request, org)]);
+  const [portal, allowed] = await Promise.all([
+    findPortal(org),
+    withinSearchLimit(request.headers, org),
+  ]);
   if (!portal) {
     return Response.json({ error: "Workspace not found." }, { status: 404 });
   }
