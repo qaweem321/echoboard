@@ -105,6 +105,7 @@ First public version.
 - New landing page, README and a commercial license (own use, clients, or your own hosted service).
 
 ### Polish
+- The "Log in" / "Sign up" links keep where you were going (for example an invitation).
 - Webhooks check the address they actually connect to, so a domain can't switch to a private
   network address between the check and the request.
 - With Polar, only the person who pays can open the billing portal (it shows all of their

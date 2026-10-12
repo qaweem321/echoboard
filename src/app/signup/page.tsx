@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { AuthSwitchLink } from "@/components/auth-switch-link";
 import { PasswordInput } from "@/components/password-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,10 +52,7 @@ export default function SignUpPage() {
             Click it to finish creating your account. Don&apos;t forget to check your spam folder.
           </p>
           <p className="text-sm text-muted-foreground">
-            Already verified?{" "}
-            <Link href="/login" className="text-link hover:underline">
-              Log in
-            </Link>
+            Already verified? <AuthSwitchLink href="/login">Log in</AuthSwitchLink>
           </p>
         </div>
       </main>
@@ -100,10 +98,7 @@ export default function SignUpPage() {
         </Button>
 
         <p className="text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link href="/login" className="text-link hover:underline">
-            Log in
-          </Link>
+          Already have an account? <AuthSwitchLink href="/login">Log in</AuthSwitchLink>
         </p>
       </form>
     </main>
