@@ -113,10 +113,11 @@ type PeriodInfo = { status: string; cancelAtPeriodEnd: boolean; currentPeriodEnd
 
 // What happens when the current period ends, shown on the Billing page.
 // A cancelled subscription keeps Pro until then, so say that clearly (also during a trial).
-// With a payment problem nothing renews until the card is fixed: the payment warning says so,
-// and no date is shown ("Renews on" next to "payment failed" would be wrong).
+// Only a live Pro plan (active or trialing) has a date. With a payment problem nothing renews
+// until the card is fixed: the payment warning says so ("Renews on" next to "payment failed"
+// would be wrong). An ended subscription (canceled, incomplete_expired) is back on Free.
 export function periodNote({ status, cancelAtPeriodEnd, currentPeriodEnd }: PeriodInfo) {
-  if (!currentPeriodEnd || hasPaymentProblem(status)) {
+  if (!currentPeriodEnd || !PAID_STATUSES.includes(status)) {
     return null;
   }
   const date = formatDate(currentPeriodEnd);

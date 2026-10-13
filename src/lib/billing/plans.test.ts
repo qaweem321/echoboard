@@ -103,6 +103,15 @@ test("a failed payment never says it renews", () => {
   }
 });
 
+test("an ended subscription never shows a date", () => {
+  const currentPeriodEnd = new Date("2026-10-14T12:00:00Z");
+  for (const status of ["canceled", "incomplete_expired", "some_new_status"]) {
+    for (const cancelAtPeriodEnd of [false, true]) {
+      assert.equal(periodNote({ status, cancelAtPeriodEnd, currentPeriodEnd }), null, status);
+    }
+  }
+});
+
 test("a subscription keeps charging until it's cancelled, also after a failed payment", () => {
   for (const status of ["active", "trialing", "past_due", "unpaid"]) {
     assert.equal(keepsCharging({ status, cancelAtPeriodEnd: false }), true, status);
