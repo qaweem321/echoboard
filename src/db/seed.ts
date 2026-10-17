@@ -5,7 +5,7 @@ import { hashPassword } from "better-auth/crypto";
 import { eq, inArray, notInArray } from "drizzle-orm";
 import { demoLogin, isDemoMode } from "../lib/demo";
 import { atomic } from "./atomic";
-import { db } from "./index";
+import { closeDb, db } from "./index";
 import {
   accounts,
   boards,
@@ -185,7 +185,9 @@ async function seedFeedback(organizationId: string) {
   ]);
 }
 
-seed().catch((error) => {
-  console.error("Seed failed:", error);
-  process.exit(1);
-});
+seed()
+  .catch((error) => {
+    console.error("Seed failed:", error);
+    process.exitCode = 1;
+  })
+  .finally(closeDb);

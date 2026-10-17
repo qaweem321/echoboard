@@ -23,7 +23,17 @@ function connect(url: string): Database {
   }
   // Both drivers have the same query API, so the app uses one type. The one difference
   // (batch) is handled by atomic() in ./atomic.ts.
-  return drizzlePostgres({ client: postgres(url), schema }) as unknown as Database;
+  postgresClient = postgres(url);
+  return drizzlePostgres({ client: postgresClient, schema }) as unknown as Database;
 }
 
+// Set when the normal Postgres driver is used. Neon's HTTP driver holds no open connection.
+let postgresClient: ReturnType<typeof postgres> | null = null;
+
 export const db = connect(databaseUrl());
+
+// For scripts (seed, demo reset): an open Postgres connection keeps Node running, so a script
+// would never exit on Docker or any non-Neon database without this.
+export async function closeDb() {
+  await postgresClient?.end();
+}

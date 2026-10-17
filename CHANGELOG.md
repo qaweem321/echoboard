@@ -9,6 +9,14 @@ Notable changes for buyers of Echoboard. The format follows
 ### Fixed
 - The Billing page no longer says "Renews on ..." for a subscription that has ended
   (`canceled`, `incomplete_expired`): only an active or trialing Pro plan shows a date.
+- `npm run db:seed` and `db:reset-demo` now finish on Docker and other non-Neon databases
+  (they used to hang after seeding, because the database connection stayed open).
+- The demo banner no longer mentions a test card when billing is turned off
+  (`BILLING_PROVIDER="none"`).
+
+### Changed
+- The Docker images use exact versions (Node 24.21.0, Postgres 17.11) instead of moving tags,
+  so every build gets the same, tested versions.
 
 ## [1.0.0] - 2026-10-09
 
