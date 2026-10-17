@@ -15,8 +15,6 @@ your own company.
 | Who signs up | Other companies, who pay you monthly (Free and Pro plans) | Your team (and your clients' teams) |
 | Billing | Polar or Stripe (`BILLING_PROVIDER="polar"` or `"stripe"`) | Turned off (`BILLING_PROVIDER="none"`): every workspace gets every feature, no pricing shown |
 
-One license covers both.
-
 In both cases the people who vote and comment on a portal never pay and never need an account.
 See "Billing" below for the setup of each.
 
@@ -45,7 +43,7 @@ See "Billing" below for the setup of each.
 - Widget page with the code to copy
 - Team members with owner, admin and member roles, email invitations
 
-**For you, the seller**
+**For you, running the service**
 - **Plans and billing** for your customers: Free and Pro, limits in one file (boards, team size,
   custom domain, branding, webhooks), enforced on the server; **Polar** or **Stripe**, or
   billing turned off
@@ -86,7 +84,7 @@ Then open:
 
 | Who | Where | What |
 | --- | --- | --- |
-| You (the seller) | `/` | Your landing page and pricing |
+| You (running the service) | `/` | Your landing page and pricing |
 | A customer's team | `/dashboard/<workspace>` | Boards, inbox, changelog, branding, widget, webhooks, billing |
 | Their users | `/p/<workspace>` or their own domain | Portal: ideas, votes, comments, roadmap, changelog |
 | Their users, inside their app | `widget.js` → `/embed/<workspace>` | The same, in a panel |
@@ -302,12 +300,9 @@ Dockerfile, docker-compose.yml
 
 ## Support
 
-Questions, bugs or setup help: email **qaweem321@gmail.com**. Please include your order email
-and, for bugs, the steps to reproduce and any error message. Setup help is included;
-custom changes are not. Updates are listed in [CHANGELOG.md](CHANGELOG.md).
+Questions and bug reports are welcome as GitHub issues. For bugs, include the steps to
+reproduce and any error message. Changes are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-Commercial license; see [LICENSE](LICENSE). Use Echoboard for your own company, for clients,
-or as your own paid feedback service for other companies. You may not resell or share the
-source code itself.
+MIT; see [LICENSE](LICENSE).
