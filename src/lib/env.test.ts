@@ -35,15 +35,6 @@ test("production also needs Resend and the webhook secret", () => {
   ]);
 });
 
-test("demo mode doesn't need Resend and must be true or false", () => {
-  assert.deepEqual(checkEnv({ ...valid, NODE_ENV: "production", DEMO_MODE: "true" }), [
-    "POLAR_WEBHOOK_SECRET is missing.",
-  ]);
-  assert.deepEqual(checkEnv({ ...valid, DEMO_MODE: "on" }), [
-    'DEMO_MODE must be "true" or "false", not "on".',
-  ]);
-});
-
 test("checks the Stripe variables when Stripe is chosen", () => {
   const problems = checkEnv({ ...valid, BILLING_PROVIDER: "stripe", STRIPE_TRIAL_DAYS: "7 days" });
   assert.deepEqual(problems, [

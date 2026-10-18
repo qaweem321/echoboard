@@ -3,7 +3,6 @@ import "./load-env";
 import { createHash, randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 import { eq, inArray, notInArray } from "drizzle-orm";
-import { demoLogin, isDemoMode } from "../lib/demo";
 import { atomic } from "./atomic";
 import { closeDb, db } from "./index";
 import {
@@ -19,22 +18,18 @@ import {
   votes,
 } from "./schema";
 
-// `npm run db:seed -- --reset` (or `npm run db:reset-demo`) first deletes the sample workspace
-// and everything in it, so a public demo can be put back to a clean state, e.g. every night.
-const reset = process.argv.includes("--reset");
+// The sample workspace's owner login (see the README's quick start).
+const sampleLogin = { email: "owner@acme.test", password: "echoboard-demo" };
 
 const demoMembers = [
-  { name: "Olivia Owner", email: demoLogin.email, role: "owner" },
+  { name: "Olivia Owner", email: sampleLogin.email, role: "owner" },
   { name: "Adam Admin", email: "admin@acme.test", role: "admin" },
   { name: "Maya Member", email: "maya@acme.test", role: "member" },
 ] as const;
 
 // The sample logins have a published password, so never add them to a real installation:
-// only to a fresh database (no other accounts yet) or a public demo (DEMO_MODE="true").
+// only to a fresh database (no other accounts yet).
 async function refuseRealInstall() {
-  if (isDemoMode()) {
-    return;
-  }
   const others = await db.$count(
     users,
     notInArray(
@@ -44,18 +39,13 @@ async function refuseRealInstall() {
   );
   if (others > 0) {
     throw new Error(
-      'This database already has real accounts. The sample data adds logins with a published password, so it only runs on a fresh database or with DEMO_MODE="true".',
+      "This database already has real accounts. The sample data adds logins with a published password, so it only runs on a fresh database.",
     );
   }
 }
 
 async function seed() {
   await refuseRealInstall();
-  if (reset) {
-    // Boards, ideas, votes, changelog, members and branding all go with it (cascade).
-    await db.delete(organizations).where(eq(organizations.slug, "acme"));
-    console.log("Deleted the sample workspace.");
-  }
   await db
     .insert(organizations)
     .values({ name: "Acme Inc.", slug: "acme" })
@@ -86,7 +76,7 @@ async function seed() {
     );
 
   // Password logins for the demo members, so the dashboard can be tried right away.
-  const passwordHash = await hashPassword(demoLogin.password);
+  const passwordHash = await hashPassword(sampleLogin.password);
   await db
     .insert(accounts)
     .values(

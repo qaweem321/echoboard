@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { DemoBanner } from "@/components/demo-banner";
 import { FreshOnBack } from "@/components/fresh-on-back";
 import { ThemeSync } from "@/components/theme";
 import { siteConfig } from "@/config/site";
@@ -29,7 +28,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <ThemeSync />
         <FreshOnBack />
-        <DemoBanner />
         {children}
       </body>
     </html>

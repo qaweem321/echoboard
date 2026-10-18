@@ -39,15 +39,6 @@ export function InviteForm({ slug, roles }: Props) {
 
       {state.error && <p className="mt-2 text-sm text-danger">{state.error}</p>}
       {state.success && <p className="mt-2 text-sm text-success">{state.success}</p>}
-      {state.link && (
-        <Input
-          readOnly
-          value={state.link}
-          aria-label="Invitation link"
-          onFocus={(event) => event.currentTarget.select()}
-          className="mt-2 w-full"
-        />
-      )}
     </form>
   );
 }

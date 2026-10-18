@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { DemoTestCard } from "@/components/demo-test-card";
 import { PaymentProblemNotice } from "@/components/payment-problem-notice";
 import { PlanCard } from "@/components/plan-card";
 import { getOrganizationSubscription } from "@/lib/billing";
@@ -10,7 +9,6 @@ import {
   planFromStatus,
   plans,
 } from "@/lib/billing/plans";
-import { isDemoMode } from "@/lib/demo";
 import { can } from "@/lib/permissions";
 import { requireMembership } from "@/lib/session";
 import { openBillingPortal, startCheckout } from "./actions";
@@ -75,10 +73,7 @@ export default async function BillingPage({ params }: { params: Promise<{ slug: 
           ) : planId === "pro" || paymentProblem ? (
             <BillingButton slug={slug} action={openBillingPortal} label="Manage subscription" />
           ) : (
-            <>
-              <BillingButton slug={slug} action={startCheckout} label="Upgrade to Pro" />
-              {isDemoMode() && <DemoTestCard />}
-            </>
+            <BillingButton slug={slug} action={startCheckout} label="Upgrade to Pro" />
           )}
         </PlanCard>
       </div>

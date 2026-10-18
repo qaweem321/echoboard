@@ -5,7 +5,6 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { webhooks } from "@/db/schema";
 import { getPlanLimits } from "@/lib/billing";
-import { DEMO_DISABLED_MESSAGE, isDemoMode } from "@/lib/demo";
 import { requirePermission } from "@/lib/session";
 import { isUuid } from "@/lib/uuid";
 import { WEBHOOK_LIMIT } from "@/lib/webhooks/config";
@@ -26,10 +25,6 @@ export async function addWebhook(
   const slug = String(formData.get("slug"));
   const { organization } = await requirePermission(slug, "webhooks:manage");
   const raw = String(formData.get("url") ?? "");
-  // A public demo must not send requests to addresses visitors type in.
-  if (isDemoMode()) {
-    return { error: DEMO_DISABLED_MESSAGE, url: raw };
-  }
 
   const checked = checkWebhookUrl(raw, process.env.NODE_ENV !== "production");
   if ("error" in checked) {

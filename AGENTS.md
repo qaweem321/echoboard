@@ -83,9 +83,6 @@ Read the docs that ship with the package before using a Next.js API:
   Billing is per organization: Polar subscriptions carry `organizationId` in metadata (Polar has
   one customer per email); Stripe has one customer per organization.
 - `src/lib/env.ts`: environment checks at startup (`src/instrumentation.ts`).
-- `src/lib/demo.ts`: `isDemoMode()` (`DEMO_MODE="true"`): no emails, no verification, banner.
-  Anything new that sends email, or makes the server contact addresses users type (webhooks,
-  domains), needs a demo-mode path (`DEMO_DISABLED_MESSAGE`).
 - Billing can be off (`BILLING_PROVIDER="none"`): use `effectivePlan()` / `getPlanLimits()`,
   never `planFromStatus()` directly, for feature checks.
 - Self-hosting: `Dockerfile`, `docker-compose.yml`, `deploy/Caddyfile`. Scripts load `.env` only

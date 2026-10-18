@@ -8,7 +8,6 @@ import { getPlanLimits } from "@/lib/billing";
 import { checkLogoUrl, normalizeDomain, normalizeHexColor } from "@/lib/branding";
 import { appHostName } from "@/lib/custom-domain";
 import { isUniqueViolation } from "@/lib/db-errors";
-import { DEMO_DISABLED_MESSAGE, isDemoMode } from "@/lib/demo";
 import {
   checkDomainDns,
   type DnsStatus,
@@ -66,10 +65,6 @@ export async function saveDomain(_previous: DomainState, formData: FormData): Pr
   const { organization } = await requirePermission(slug, "organization:update");
   const host = appHostName();
 
-  // Anyone can sign up to a public demo; they mustn't be able to claim real domains.
-  if (isDemoMode()) {
-    return { error: DEMO_DISABLED_MESSAGE };
-  }
   const checked = normalizeDomain(formData.get("customDomain"), host);
   if ("error" in checked) {
     return checked;

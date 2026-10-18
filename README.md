@@ -50,7 +50,6 @@ See "Billing" below for the setup of each.
 - Landing page with pricing, Terms and Privacy templates, SEO basics
 - **Runs anywhere:** Vercel + Neon, or **Docker** with any Postgres (Caddy example included for
   automatic HTTPS on every customer domain)
-- **Public demo mode** with a sample workspace and a reset script
 - Security: rate limits on everything public, signed unsubscribe links, private-network
   blocking for webhooks, framing allowed only for the widget, security headers, input checks
 - Quality: TypeScript strict, 100+ unit tests, Biome, GitHub Actions CI, `AGENTS.md` so AI
@@ -105,7 +104,6 @@ anything missing or invalid.
 | `BETTER_AUTH_URL` | yes | Where the app runs, no trailing slash: `https://app.yourbrand.com` |
 | `RESEND_API_KEY` | production | Resend API key. Without it emails are printed in the terminal |
 | `EMAIL_FROM` | production | Sender, e.g. `YourBrand <hello@yourbrand.com>`, on a domain verified in Resend |
-| `DEMO_MODE` | no | `true` for a public demo (see below). Never on for a real app |
 | `BILLING_PROVIDER` | yes | `polar`, `stripe`, or `none` (billing off, every workspace gets everything) |
 | `POLAR_*` / `STRIPE_*` | for your provider | See "Billing" |
 
@@ -235,14 +233,6 @@ the pricing section is hidden. Good for running Echoboard for your own company.
 Update emails go out in batches of 100 after the page responds; each workspace can send at most
 30 updates per hour.
 
-## Public demo (`DEMO_MODE`)
-
-Set `DEMO_MODE="true"` on a demo deployment and run `npm run db:seed`: a banner shows the sample
-workspace's login, sign-up skips email verification, no emails are sent, the Billing page shows
-a test card, and webhooks and custom domains are turned off so visitors can't misuse them.
-Run `npm run db:reset-demo` (for example every night) to put the sample workspace back to its
-original state. Never turn demo mode on for a real app.
-
 ## Make it yours
 
 - **Name, tagline, company, support email:** `src/config/site.ts`
@@ -265,8 +255,7 @@ original state. Never turn demo mode on for a real app.
 | `npm run db:generate` | Create a migration after you change `src/db/schema/` |
 | `npm run db:migrate` | Apply migrations to the database in `DATABASE_URL` |
 | `npm run db:studio` | Browse your data in Drizzle Studio |
-| `npm run db:seed` | Add the sample workspace (safe to run again; refuses a database that already has real accounts, unless `DEMO_MODE="true"`) |
-| `npm run db:reset-demo` | Delete the sample workspace and add it again, fresh |
+| `npm run db:seed` | Add the sample workspace (safe to run again; refuses a database that already has real accounts) |
 
 ## Project structure
 
