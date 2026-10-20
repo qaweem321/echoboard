@@ -16,3 +16,8 @@ export function databaseDriver(env: Env = process.env): DatabaseDriver {
     return "postgres";
   }
 }
+
+// `db.execute` gives `{ rows }` on Neon's HTTP driver and a plain array on the Postgres driver.
+export function rowsOf<Row>(result: unknown): Row[] {
+  return (Array.isArray(result) ? result : (result as { rows: Row[] }).rows) as Row[];
+}

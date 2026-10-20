@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { databaseDriver } from "./driver";
+import { databaseDriver, rowsOf } from "./driver";
 
 test("Neon URLs use the Neon driver, others a normal connection", () => {
   assert.equal(
@@ -18,4 +18,10 @@ test("DATABASE_DRIVER overrides the guess", () => {
     databaseDriver({ DATABASE_URL: "postgresql://u:p@db/x", DATABASE_DRIVER: "neon" }),
     "neon",
   );
+});
+
+test("raw query rows read the same from both drivers", () => {
+  const rows = [{ id: "a" }];
+  assert.deepEqual(rowsOf(rows), rows);
+  assert.deepEqual(rowsOf({ rows }), rows);
 });

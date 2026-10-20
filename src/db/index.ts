@@ -1,8 +1,9 @@
 import { neon } from "@neondatabase/serverless";
+import type { SQL } from "drizzle-orm";
 import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
 import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { databaseDriver } from "./driver";
+import { databaseDriver, rowsOf } from "./driver";
 import * as schema from "./schema";
 
 function databaseUrl() {
@@ -36,4 +37,10 @@ export const db = connect(databaseUrl());
 // would never exit on Docker or any non-Neon database without this.
 export async function closeDb() {
   await postgresClient?.end();
+}
+
+// Raw SQL with `db.execute` returns `{ rows }` on Neon's HTTP driver but a plain array on the
+// normal Postgres driver. Run raw queries through this so both give the same rows.
+export async function queryRows<Row extends Record<string, unknown>>(query: SQL): Promise<Row[]> {
+  return rowsOf<Row>(await db.execute(query));
 }

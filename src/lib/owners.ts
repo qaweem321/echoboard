@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { db } from "@/db";
+import { queryRows } from "@/db";
 import type { Role } from "@/lib/permissions";
 
 // Removing or demoting an owner must never leave a workspace without one. Checking the
@@ -22,7 +22,7 @@ export async function removeMembershipKeepingOwner(
   membershipId: string,
   actorId: string,
 ) {
-  const result = await db.execute(sql`${lockedOwners(organizationId)}
+  const rows = await queryRows(sql`${lockedOwners(organizationId)}
     delete from memberships m
     where m.id = ${membershipId} and m.organization_id = ${organizationId}
       and (m.role <> 'owner' or (
@@ -30,7 +30,7 @@ export async function removeMembershipKeepingOwner(
         and exists (select 1 from owners where user_id = ${actorId})
       ))
     returning m.id`);
-  return result.rows.length > 0;
+  return rows.length > 0;
 }
 
 // Changes a member's role (only owners do this). False when it would demote the last owner, or
@@ -41,11 +41,11 @@ export async function changeRoleKeepingOwner(
   role: Role,
   actorId: string,
 ) {
-  const result = await db.execute(sql`${lockedOwners(organizationId)}
+  const rows = await queryRows(sql`${lockedOwners(organizationId)}
     update memberships m set role = ${role}::role
     where m.id = ${membershipId} and m.organization_id = ${organizationId}
       and exists (select 1 from owners where user_id = ${actorId})
       and (m.role <> 'owner' or ${role}::text = 'owner' or exists (select 1 from owners where id <> m.id))
     returning m.id`);
-  return result.rows.length > 0;
+  return rows.length > 0;
 }
