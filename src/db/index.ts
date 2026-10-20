@@ -33,7 +33,7 @@ let postgresClient: ReturnType<typeof postgres> | null = null;
 
 export const db = connect(databaseUrl());
 
-// For scripts (seed, demo reset): an open Postgres connection keeps Node running, so a script
+// For scripts (seed): an open Postgres connection keeps Node running, so a script
 // would never exit on Docker or any non-Neon database without this.
 export async function closeDb() {
   await postgresClient?.end();
