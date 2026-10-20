@@ -7,12 +7,14 @@ type Props = { base: string; entry: Entry; titleAsLink?: boolean };
 
 // One published changelog entry: date, title, text and the ideas it shipped.
 export function ChangelogEntry({ base, entry, titleAsLink = false }: Props) {
+  // In a list the titles sit under the page's <h1>; on the entry's own page the title is the <h1>.
+  const Heading = titleAsLink ? "h2" : "h1";
   return (
     <article className="space-y-3">
       {entry.publishedAt && (
         <p className="text-sm text-subtle-foreground">{formatDate(entry.publishedAt)}</p>
       )}
-      <h2 className="text-xl font-bold break-words">
+      <Heading className="text-xl font-bold break-words">
         {titleAsLink ? (
           <Link href={`${base}/changelog/${entry.id}`} className="hover:underline">
             {entry.title}
@@ -20,7 +22,7 @@ export function ChangelogEntry({ base, entry, titleAsLink = false }: Props) {
         ) : (
           entry.title
         )}
-      </h2>
+      </Heading>
       {entry.body && (
         <p className="whitespace-pre-wrap break-words text-secondary-foreground">{entry.body}</p>
       )}

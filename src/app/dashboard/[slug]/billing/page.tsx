@@ -48,6 +48,8 @@ export default async function BillingPage({ params }: { params: Promise<{ slug: 
         <PaymentProblemNotice slug={slug} status={subscription.status} canManage={canManage} />
       )}
 
+      {/* The plan cards use <h3>; this keeps the heading levels in order for screen readers. */}
+      <h2 className="sr-only">Plans</h2>
       <div className="mt-8 grid gap-6 sm:grid-cols-2">
         <PlanCard
           plan={plans.free}

@@ -49,7 +49,7 @@ export function EmbedApp({ organization, portalUrl, boards }: Props) {
   return (
     <div className="flex h-dvh flex-col bg-background">
       <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
-        <p className="truncate font-semibold">{organization.name} feedback</p>
+        <h1 className="truncate font-semibold">{organization.name} feedback</h1>
         {inFrame && (
           <button
             type="button"
@@ -98,7 +98,7 @@ export function EmbedApp({ organization, portalUrl, boards }: Props) {
         ))}
       </nav>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-4">
+      <main className="min-h-0 flex-1 overflow-y-auto p-4">
         {notice && (
           <p className="mb-3 rounded-lg bg-success/10 p-3 text-sm text-success">{notice}</p>
         )}
@@ -128,7 +128,7 @@ export function EmbedApp({ organization, portalUrl, boards }: Props) {
             }}
           />
         )}
-      </div>
+      </main>
 
       <footer className="border-t border-border px-4 py-2 text-center text-xs">
         <a href={portalUrl} target="_blank" rel="noopener" className="text-link hover:underline">

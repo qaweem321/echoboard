@@ -78,3 +78,10 @@ body {
 button:not(:disabled) {
   cursor: pointer;
 }
+
+/* Links inside a sentence need more than color to stand out (WCAG 1.4.1). Utilities such as
+   no-underline still win, because they come later. */
+:where(p, label) a.text-link {
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
+}

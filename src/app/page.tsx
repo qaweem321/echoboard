@@ -87,6 +87,7 @@ export default async function HomePage() {
         </section>
 
         <section id="features" className="bg-surface py-20">
+          <h2 className="sr-only">Features</h2>
           <div className="mx-auto max-w-6xl px-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
               <div

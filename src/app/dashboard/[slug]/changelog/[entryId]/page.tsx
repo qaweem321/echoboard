@@ -29,7 +29,8 @@ export default async function ChangelogEntryPage({ params }: Props) {
         <Link href={base} className="text-sm text-link hover:underline">
           ← Changelog
         </Link>
-        <p className="mt-2 text-sm text-subtle-foreground">
+        <h1 className="mt-2 text-2xl font-bold">Edit changelog entry</h1>
+        <p className="mt-1 text-sm text-subtle-foreground">
           {entry.publishedAt ? (
             <>
               Published {formatDate(entry.publishedAt)} ·{" "}
