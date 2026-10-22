@@ -75,9 +75,16 @@ npm run dev                 # http://localhost:3000
 
 Then open:
 - **http://localhost:3000/p/acme**: the sample workspace's public portal
-- **http://localhost:3000/login**: log in as `owner@acme.test` with password `echoboard-demo`
-  (also `admin@acme.test`, `maya@acme.test`), or sign up. Without Resend, the verification
-  email is printed in the terminal; open the link from there.
+- **http://localhost:3000/login**: log in with one of the sample logins below, or sign up.
+  Without Resend, the verification email is printed in the terminal; open the link from there.
+
+| Email | Password | Role |
+| --- | --- | --- |
+| `owner@acme.test` | `echoboard-demo` | Owner: everything, including billing |
+| `admin@acme.test` | `echoboard-demo` | Admin: boards, members, changelog, webhooks (no billing) |
+| `maya@acme.test` | `echoboard-demo` | Member: triages feedback (statuses, edits, merging) |
+
+These passwords are for local use only.
 
 ## How it fits together
 
