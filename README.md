@@ -290,8 +290,9 @@ Dockerfile, docker-compose.yml
 - Anyone can vote without an account, so a determined person can vote many times (new browser,
   cleared storage). Votes are rate limited per address; treat counts as a strong signal, not an
   election. Names and emails people leave help you spot real customers.
-- `npm audit` reports 0 vulnerabilities. `package.json` pins a newer `esbuild` for `drizzle-kit`
-  through `overrides`; re-check `npm audit` after installing new packages.
+- `package.json` pins a newer `esbuild` for `drizzle-kit` through `overrides`, because the
+  version `drizzle-kit` asks for has a known security issue. Run `npm audit` after installing or
+  updating packages.
 - In development the database is far away compared to production, so pages feel slower locally.
 
 ## Support
