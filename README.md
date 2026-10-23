@@ -98,6 +98,8 @@ These passwords are for local use only.
 Visitors are not accounts: a random code in their browser (a cookie on the portal, the panel's
 own storage in the widget) remembers their votes. Only its hash is stored.
 
+The reasoning behind these choices, with trade-offs, is in [docs/DECISIONS.md](docs/DECISIONS.md).
+
 ## Environment variables
 
 Everything lives in `.env` (copy `.env.example`). When the app starts it checks these and lists
